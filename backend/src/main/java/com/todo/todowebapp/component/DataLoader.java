@@ -8,10 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import java.time.LocalDateTime;
 
 @Component
 public class DataLoader implements CommandLineRunner {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private UserRepository userRepository;
@@ -24,6 +28,15 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // Programmatically ensure the many-to-many join table exists
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS user_pinned_tasks (" +
+                "user_id BIGINT NOT NULL, " +
+                "task_id BIGINT NOT NULL, " +
+                "PRIMARY KEY (user_id, task_id), " +
+                "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, " +
+                "FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE" +
+                ")");
+
         // Migrate existing admin to generalmanager if present
         userRepository.findByUsername("admin").ifPresent(u -> {
             userService.updateUser(u, "generalmanager", "generalmanager123", "SYSTEM");
