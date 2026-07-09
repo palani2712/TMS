@@ -1,0 +1,124 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #92c4e9;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #0c4a6e;
+  --color-primary-900: #082f49;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+
+  /* Theme Background & Text variables */
+  --color-bg-app: #b3e0ff;
+  --color-bg-card: rgba(255, 255, 255, 0.8);
+  --color-text-main: #0c4a6e;
+  --color-border-main: rgba(14, 165, 233, 0.4);
+
+  /* Chart colors */
+  --color-chart-completed: #10b981;
+  --color-chart-pending: #3b82f6;
+  --color-chart-overdue: #ef4444;
+  --color-chart-onhold: #d97706;
+
+  /* Interactive components active/hover states */
+  --color-sidebar-item-active-bg: #92c4e9;
+  --color-sidebar-item-active-text: #0c4a6e;
+  --color-sidebar-item-hover-bg: #92c4e9;
+  --color-sidebar-item-hover-text: #0c4a6e;
+  --color-button-secondary-bg: #92c4e9;
+  --color-button-secondary-text: #0c4a6e;
+  --color-button-secondary-border: rgba(14, 165, 233, 0.4);
+  --color-autofill-bg: #f8fafc;
+  --color-autofill-text: #0f172a;
+}
+
+.dark {
+  --color-bg-app: #000000;
+  --color-bg-card: rgba(24, 24, 27, 0.85);
+  --color-text-main: #f8fafc;
+  --color-border-main: rgba(255, 255, 255, 0.15);
+
+  --color-sidebar-item-active-bg: rgba(139, 92, 246, 0.15);
+  --color-sidebar-item-active-text: #ffffff;
+  --color-sidebar-item-hover-bg: rgba(255, 255, 255, 0.08);
+  --color-sidebar-item-hover-text: #ffffff;
+  --color-button-secondary-bg: rgba(24, 24, 27, 0.85);
+  --color-button-secondary-text: #f8fafc;
+  --color-button-secondary-border: rgba(255, 255, 255, 0.15);
+  --color-autofill-bg: #090d16;
+  --color-autofill-text: #ffffff;
+}
+
+/* Custom Styles & Animation Variables */
+@layer base {
+  body {
+    background-color: var(--color-bg-app);
+    color: var(--color-text-main);
+    @apply transition-colors duration-300 antialiased font-sans;
+  }
+}
+
+/* Custom Scrollbar for premium feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full transition-colors duration-200;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-600;
+}
+
+/* Dynamic glassmorphism conforming to theme variables */
+.glass {
+  background: var(--color-bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-main);
+  transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Prevent browser autofill from turning input fields white/blue */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-autofill-bg) inset !important;
+  -webkit-text-fill-color: var(--color-autofill-text) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Smooth transitions on theme toggles */
+body, 
+.glass, 
+aside, 
+main,
+nav, 
+button, 
+input, 
+select, 
+textarea,
+span,
+h1, h2, h3, h4, h5, h6,
+p,
+a,
+svg,
+path {
+  transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, fill 0.4s ease, stroke 0.4s ease, box-shadow 0.4s ease !important;
+}
