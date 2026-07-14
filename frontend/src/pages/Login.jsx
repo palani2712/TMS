@@ -146,7 +146,7 @@ const Login = () => {
       <div className="w-full max-w-md mx-4 z-10">
         <div className="bg-[#363636] backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10 text-white flex flex-col items-center">
           
-          <span className="text-xs font-bold uppercase tracking-widest text-primary-400 mb-1 mt-4">Career School HR Solutions</span>
+          <img src="/logo-cs.png" alt="Career School HR Solutions" className="h-14 w-auto object-contain mb-4 mt-2" />
           <h1 className="text-2xl font-bold tracking-tight mb-1 text-white">Welcome Back</h1>
           <p className="text-slate-400 text-sm mb-8 text-center font-medium">
             Sign in to access your dashboard
