@@ -1581,7 +1581,9 @@ const Dashboard = () => {
                       <Clock className="w-3.5 h-3.5" />
                       <span>Re-Open Task</span>
                     </button>
-                                    {(() => {
+                  )}
+
+                  {(() => {
                     const isAssignee = selectedTask.assignedTo === user.username;
                     const isCreator = selectedTask.assignedBy === user.username;
                     const isGeneralManager = user.role === 'ROLE_ADMIN';
