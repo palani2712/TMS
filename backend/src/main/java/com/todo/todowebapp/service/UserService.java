@@ -77,10 +77,25 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
+    public static void validatePassword(String password) {
+        if (password == null || password.trim().length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters.");
+        }
+        boolean hasLetter = password.matches(".*[a-zA-Z].*");
+        boolean hasDigit = password.matches(".*\\d.*");
+        boolean hasSpecial = password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\",./<>?\\\\|`~].*");
+        if (!hasLetter || !hasDigit || !hasSpecial) {
+            throw new IllegalArgumentException("Password must contain letters, numbers, and special characters.");
+        }
+    }
+
     @Transactional
     public User createUser(User user, String creatorUsername) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("Username is already taken!");
+        }
+        if (!"SYSTEM".equals(creatorUsername)) {
+            validatePassword(user.getPassword());
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
@@ -93,7 +108,12 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User updateUser(User existingUser, String newUsername, String newPassword, String modifierUsername) {
         if (newUsername != null && !newUsername.trim().isEmpty() && !newUsername.equals(existingUser.getUsername())) {
-            // Interns/Employees cannot change username, done via RBAC check at controller
+            if (!"SYSTEM".equals(modifierUsername)) {
+                User modifier = userRepository.findByUsername(modifierUsername).orElse(null);
+                if (modifier == null || modifier.getRole() != com.todo.todowebapp.model.Role.ROLE_ADMIN) {
+                    throw new IllegalArgumentException("Only the General Manager can change usernames.");
+                }
+            }
             if (userRepository.existsByUsername(newUsername)) {
                 throw new IllegalArgumentException("Username is already taken!");
             }
@@ -104,6 +124,9 @@ public class UserService implements UserDetailsService {
         }
 
         if (newPassword != null && !newPassword.trim().isEmpty()) {
+            if (!"SYSTEM".equals(modifierUsername)) {
+                validatePassword(newPassword);
+            }
             existingUser.setPassword(passwordEncoder.encode(newPassword));
             existingUser.setPasswordResetAllowed(false);
             existingUser.setPasswordResetGrantedAt(null);

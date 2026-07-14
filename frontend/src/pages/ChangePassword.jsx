@@ -20,8 +20,15 @@ const ChangePassword = () => {
     e.preventDefault();
     if (!hasPermission) return;
 
-    if (password.length < 6) {
-      showToast('Password must be at least 6 characters.', 'error');
+    if (password.length < 8) {
+      showToast('Password must be at least 8 characters.', 'error');
+      return;
+    }
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':",./<>?\\|`~]/.test(password);
+    if (!hasLetter || !hasNumber || !hasSpecial) {
+      showToast('Password must contain letters, numbers, and special characters.', 'error');
       return;
     }
 
@@ -89,7 +96,7 @@ const ChangePassword = () => {
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Minimum 6 characters"
+                placeholder="Min 8 chars, letters, numbers & special chars"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-9 pr-10 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"

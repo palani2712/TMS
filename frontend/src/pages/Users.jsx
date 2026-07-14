@@ -110,6 +110,17 @@ const Users = () => {
         role: userForm.role,
       };
       if (userForm.password.trim()) {
+        if (userForm.password.length < 8) {
+          showToast('Password must be at least 8 characters.', 'error');
+          return;
+        }
+        const hasLetter = /[a-zA-Z]/.test(userForm.password);
+        const hasNumber = /\d/.test(userForm.password);
+        const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':",./<>?\\|`~]/.test(userForm.password);
+        if (!hasLetter || !hasNumber || !hasSpecial) {
+          showToast('Password must contain letters, numbers, and special characters.', 'error');
+          return;
+        }
         payload.password = userForm.password;
       }
       if (userForm.role === 'ROLE_EMPLOYEE' && userForm.managerUsername) {
@@ -187,8 +198,15 @@ const Users = () => {
       showToast('Password is required.', 'error');
       return;
     }
-    if (passwordForm.newPassword.length < 6) {
-      showToast('Password must be at least 6 characters.', 'error');
+    if (passwordForm.newPassword.length < 8) {
+      showToast('Password must be at least 8 characters.', 'error');
+      return;
+    }
+    const hasLetter = /[a-zA-Z]/.test(passwordForm.newPassword);
+    const hasNumber = /\d/.test(passwordForm.newPassword);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':",./<>?\\|`~]/.test(passwordForm.newPassword);
+    if (!hasLetter || !hasNumber || !hasSpecial) {
+      showToast('Password must contain letters, numbers, and special characters.', 'error');
       return;
     }
 
@@ -601,7 +619,7 @@ const Users = () => {
                   type="password"
                   value={passwordForm.newPassword}
                   onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
-                  placeholder="•••••••• (Min 6 characters)"
+                  placeholder="•••••••• (Min 8 characters, complex)"
                   className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500/50"
                   required
                 />

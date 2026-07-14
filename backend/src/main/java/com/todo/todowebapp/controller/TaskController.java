@@ -428,8 +428,8 @@ public class TaskController {
         Task task = taskService.getTaskById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        if (!task.getAssignedBy().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Only the creator who assigned this task can approve or reject hold requests.");
+        if (!task.getAssignedBy().getId().equals(user.getId()) && user.getRole() != Role.ROLE_ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Only the creator who assigned this task or the General Manager can approve or reject hold requests.");
         }
 
         if (!task.isOnHoldRequested()) {
