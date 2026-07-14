@@ -127,13 +127,15 @@ const Dashboard = () => {
     setTaskForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // Helper to get end of today (23:59) in ISO local format
-  const getEndOfToday = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}T23:59`;
+  // Helper to get current time in ISO local format
+  const getCurrentLocalDateTime = (targetDate = new Date()) => {
+    const year = targetDate.getFullYear();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const day = String(targetDate.getDate()).padStart(2, '0');
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
   // Open Create Modal
@@ -144,17 +146,14 @@ const Dashboard = () => {
       description: '',
       assignedTo: user.role === 'ROLE_EMPLOYEE' ? user.username : (employees[0]?.username || ''),
       priority: 'MEDIUM',
-      dueDate: getEndOfToday(),
+      dueDate: getCurrentLocalDateTime(),
     });
     setIsCreateModalOpen(true);
   };
 
   // Open Create Modal for specific Calendar Date
   const openCreateModalForDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const localDateTime = `${year}-${month}-${day}T23:59`;
+    const localDateTime = getCurrentLocalDateTime(date);
     
     setTaskForm({
       id: null,
