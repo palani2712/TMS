@@ -139,9 +139,8 @@ const Sidebar = () => {
     <>
       {/* Mobile Top Bar */}
       <div className="lg:hidden flex items-center justify-between w-full p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 z-30 sticky top-0">
-        <div className="flex items-center gap-2 font-bold text-lg text-primary-600 dark:text-primary-400">
-          <CheckSquare className="w-6 h-6" />
-          <span>CSHR</span>
+        <div className="flex items-center h-8">
+          <img src={darkMode ? '/logo-dark-cs.png' : '/logo-light-cs.png'} alt="CSHR Logo" className="h-8 w-auto object-contain" />
         </div>
         <button 
           onClick={() => setIsOpen(!isOpen)}
@@ -154,10 +153,9 @@ const Sidebar = () => {
       {/* Sidebar shell */}
       <aside className={`fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 w-64 lg:static lg:flex flex-col glass dark:bg-slate-900/90 border-r h-full max-h-screen text-[var(--color-text-main)]`}>
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-black text-xl text-primary-600 dark:text-primary-400">
-            <CheckSquare className="w-7 h-7" />
-            <span>CSHR</span>
+        <div className="p-6 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between gap-4">
+          <div className="flex items-center h-10 max-w-[130px]">
+            <img src={darkMode ? '/logo-dark-cs.png' : '/logo-light-cs.png'} alt="CSHR Logo" className="h-10 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-2">
             <button 
