@@ -1209,6 +1209,8 @@ const Dashboard = () => {
                 {getDaysInMonth(currentDate).map((day, idx) => {
                   const isToday = isSameDay(day.date, new Date());
                   const dayTasks = getTasksForDay(day.date);
+                  const hasDeadlines = dayTasks.length > 0;
+                  const allCompleted = hasDeadlines && dayTasks.every(task => task.status === 'COMPLETED');
                   
                   return (
                     <div
@@ -1216,8 +1218,10 @@ const Dashboard = () => {
                       onClick={() => handleCalendarDayClick(day.date)}
                       className={`min-h-[80px] p-1.5 rounded-xl border transition-all flex items-center justify-center cursor-pointer group/cell ${
                         day.isCurrentMonth
-                          ? dayTasks.length > 0
-                            ? 'bg-amber-100 dark:bg-amber-955/20 border-amber-300 dark:border-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-900/30 shadow-sm'
+                          ? hasDeadlines
+                            ? allCompleted
+                              ? 'bg-emerald-100 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-900/30 shadow-sm'
+                              : 'bg-amber-100 dark:bg-amber-950/20 border-amber-300 dark:border-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-900/30 shadow-sm'
                             : 'bg-white/40 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/60 hover:bg-white/60 dark:hover:bg-slate-900/60'
                           : 'bg-slate-50/20 dark:bg-slate-950/10 border-transparent text-slate-400 dark:text-slate-600'
                       } ${
@@ -1229,8 +1233,10 @@ const Dashboard = () => {
                       <span className={`text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center ${
                         isToday 
                           ? 'bg-primary-500 text-white' 
-                          : dayTasks.length > 0
-                            ? 'bg-amber-500 text-white shadow-sm font-black'
+                          : hasDeadlines
+                            ? allCompleted
+                              ? 'bg-emerald-500 text-white shadow-sm font-black'
+                              : 'bg-amber-500 text-white shadow-sm font-black'
                             : 'text-slate-700 dark:text-slate-200'
                       }`}>
                         {day.date.getDate()}
