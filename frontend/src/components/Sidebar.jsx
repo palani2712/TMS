@@ -25,6 +25,7 @@ const Sidebar = () => {
 
   const [notifications, setNotifications] = useState([]);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const fetchNotifications = async () => {
     try {
@@ -277,7 +278,7 @@ const Sidebar = () => {
         {/* Footer Logout */}
         <div className="p-4 border-t border-slate-300 dark:border-slate-800">
           <button
-            onClick={handleLogout}
+            onClick={() => setIsLogoutModalOpen(true)}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all duration-200"
           >
             <LogOut className="w-5 h-5" />
@@ -292,6 +293,38 @@ const Sidebar = () => {
           onClick={() => setIsOpen(false)} 
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 lg:hidden"
         />
+      )}
+
+      {/* LOGOUT CONFIRMATION MODAL */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={() => setIsLogoutModalOpen(false)} />
+          <div className="glass rounded-3xl w-full max-w-sm shadow-2xl relative border border-slate-200 dark:border-slate-800 overflow-hidden text-slate-800 dark:text-slate-100 flex flex-col p-6 space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-bold">Sign Out</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Are you sure you want to sign out of your account?</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold text-xs transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLogoutModalOpen(false);
+                  handleLogout();
+                }}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-sm"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

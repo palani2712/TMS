@@ -82,8 +82,10 @@ public class UserController {
                     .body("Error: You do not have permission to change your password. Please ask the General Manager.");
         }
 
-        if (passwordDto.getPassword() == null || passwordDto.getPassword().trim().length() < 6) {
-            return ResponseEntity.badRequest().body("Error: Password must be at least 6 characters.");
+        try {
+            UserService.validatePassword(passwordDto.getPassword());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
 
         userService.updateUser(user, null, passwordDto.getPassword(), authentication.getName());

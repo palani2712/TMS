@@ -533,7 +533,7 @@ const Dashboard = () => {
   };
 
   const getTasksForDay = (dayDate) => {
-    return filteredTasks.filter(task => {
+    return tasks.filter(task => {
       if (!task.dueDate) return false;
       const taskDate = new Date(task.dueDate);
       return isSameDay(taskDate, dayDate);
@@ -984,19 +984,26 @@ const Dashboard = () => {
                       </div>
 
                       {/* Task Footer */}
-                      <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                        <div className="flex items-center gap-1.5 max-w-[220px]" title={`${task.assignedBy} ➔ ${task.assignedTo}`}>
-                          <User className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{task.assignedBy}</span>
-                          <span className="mx-1 text-[13px] font-black text-slate-400 dark:text-slate-500 shrink-0">➔</span>
-                          <User className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{task.assignedTo}</span>
+                      <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex flex-col gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 max-w-[180px]" title={`${task.assignedBy} ➔ ${task.assignedTo}`}>
+                            <User className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{task.assignedBy}</span>
+                            <span className="mx-1 text-[13px] font-black text-slate-400 dark:text-slate-500 shrink-0">➔</span>
+                            <User className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{task.assignedTo}</span>
+                          </div>
+                          {task.createdDate && (
+                            <span className="text-[10px] text-slate-400">
+                              Created: {new Date(task.createdDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
+                            </span>
+                          )}
                         </div>
 
                         {task.dueDate && (
-                          <div className="flex items-center gap-1 text-slate-400 font-medium">
+                          <div className="flex items-center justify-end gap-1 text-slate-400 font-medium">
                             <Calendar className="w-3.5 h-3.5" />
-                            <span>{new Date(task.dueDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
+                            <span>Due: {new Date(task.dueDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
                           </div>
                         )}
                       </div>
@@ -1015,6 +1022,7 @@ const Dashboard = () => {
                           <th className="p-4 text-center">Status</th>
                           <th className="p-4 text-center">Assigned By</th>
                           <th className="p-4 text-center">Assigned To</th>
+                          <th className="p-4 text-center">Created Date</th>
                           <th className="p-4 text-center">Due Date</th>
                           <th className="p-4 text-center">Due Time</th>
                           <th className="p-4 text-center">Actions</th>
@@ -1057,6 +1065,9 @@ const Dashboard = () => {
                                   <User className="w-3 h-3 text-slate-400" />
                                   <span>{task.assignedTo}</span>
                                 </div>
+                              </td>
+                              <td className="p-4 text-center text-slate-500 dark:text-slate-400">
+                                {task.createdDate ? new Date(task.createdDate).toLocaleDateString() : 'N/A'}
                               </td>
                               <td className="p-4 text-center text-slate-500 dark:text-slate-400">
                                 {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No deadline'}
@@ -1206,7 +1217,9 @@ const Dashboard = () => {
                       onClick={() => handleCalendarDayClick(day.date)}
                       className={`min-h-[80px] p-1.5 rounded-xl border transition-all flex flex-col items-center justify-between cursor-pointer group/cell ${
                         day.isCurrentMonth
-                          ? 'bg-white/40 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/60 hover:bg-white/60 dark:hover:bg-slate-900/60'
+                          ? dayTasks.length > 0
+                            ? 'bg-primary-50/20 dark:bg-primary-950/10 border-primary-200/50 dark:border-primary-900/30 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 shadow-sm'
+                            : 'bg-white/40 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/60 hover:bg-white/60 dark:hover:bg-slate-900/60'
                           : 'bg-slate-50/20 dark:bg-slate-950/10 border-transparent text-slate-400 dark:text-slate-600'
                       } ${
                         isToday
@@ -1215,7 +1228,11 @@ const Dashboard = () => {
                       }`}
                     >
                       <span className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center ${
-                        isToday ? 'bg-primary-500 text-white' : 'text-slate-700 dark:text-slate-200'
+                        isToday 
+                          ? 'bg-primary-500 text-white' 
+                          : dayTasks.length > 0
+                            ? 'bg-primary-500/20 text-primary-750 dark:text-primary-300 font-extrabold ring-1 ring-primary-500/30'
+                            : 'text-slate-700 dark:text-slate-200'
                       }`}>
                         {day.date.getDate()}
                       </span>
@@ -1564,15 +1581,11 @@ const Dashboard = () => {
                       <Clock className="w-3.5 h-3.5" />
                       <span>Re-Open Task</span>
                     </button>
-                  )}
-
-                  {(() => {
-                    const assignedUser = employees.find(e => e.username === selectedTask.assignedTo);
+                                    {(() => {
                     const isAssignee = selectedTask.assignedTo === user.username;
-                    const isManagerOfAssignee = assignedUser && assignedUser.managerUsername === user.username;
-                    const isAssigneeManager = assignedUser && assignedUser.role === 'ROLE_MANAGER';
-                    const isSelfAssigned = selectedTask.assignedBy === selectedTask.assignedTo;
-                    const showRequestHold = (isAssignee || (isManagerOfAssignee && !isAssigneeManager)) && !isSelfAssigned;
+                    const isCreator = selectedTask.assignedBy === user.username;
+                    const isGeneralManager = user.role === 'ROLE_ADMIN';
+                    const showRequestHold = isAssignee && !isCreator && !isGeneralManager;
                     
                     return showRequestHold && (selectedTask.status === 'PENDING' || selectedTask.status === 'IN_PROGRESS' || selectedTask.status === 'OVERDUE') && (
                       <button
@@ -1595,7 +1608,7 @@ const Dashboard = () => {
                     );
                   })()}
 
-                  {(user.role === 'ROLE_ADMIN' || (user.role === 'ROLE_MANAGER' && selectedTask.assignedBy === user.username)) && (selectedTask.status === 'PENDING' || selectedTask.status === 'IN_PROGRESS' || selectedTask.status === 'ON_HOLD' || selectedTask.status === 'OVERDUE') && (
+                  {(user.role === 'ROLE_ADMIN' || selectedTask.assignedBy === user.username) && (selectedTask.status === 'PENDING' || selectedTask.status === 'IN_PROGRESS' || selectedTask.status === 'ON_HOLD' || selectedTask.status === 'OVERDUE') && (
                     <button
                       onClick={() => handleUpdateStatus(selectedTask.id, selectedTask.status === 'ON_HOLD' ? 'IN_PROGRESS' : 'ON_HOLD')}
                       className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
