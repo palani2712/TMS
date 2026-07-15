@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import API from '../services/api';
-import { Save, Palette, Check, User, Mail, Phone, Settings as SettingsIcon } from 'lucide-react';
+import { Save, Palette, Check, User, Mail, Phone, Settings as SettingsIcon, Lock, Eye, EyeOff, KeyRound } from 'lucide-react';
 
 // Predefined themes
 const PREDEFINED_THEMES = {
@@ -76,6 +76,45 @@ const Settings = () => {
   const [selectedTheme, setSelectedTheme] = useState('light');
   const [customColors, setCustomColors] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Password change state (for Managers)
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const handleSavePassword = async (e) => {
+    e.preventDefault();
+
+    if (newPassword.length < 8) {
+      showToast('Password must be at least 8 characters.', 'error');
+      return;
+    }
+    const hasLetter = /[a-zA-Z]/.test(newPassword);
+    const hasNumber = /\d/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':",./<>?\\|`~]/.test(newPassword);
+    if (!hasLetter || !hasNumber || !hasSpecial) {
+      showToast('Password must contain letters, numbers, and special characters.', 'error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showToast('Passwords do not match.', 'error');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      await API.put('/users/change-password', { password: newPassword });
+      showToast('Password updated successfully!', 'success');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      showToast(err.response?.data || 'Failed to update password.', 'error');
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   useEffect(() => {
     // Load profile
@@ -390,84 +429,149 @@ const Settings = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Profile Column */}
-        <div className="glass p-6 rounded-3xl md:col-span-2 space-y-6 shadow-sm">
-          <h3 className="text-lg font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-            <User className="w-5 h-5 text-primary-500" />
-            <span>Profile Details</span>
-          </h3>
+        {/* Left Column (Profile & Password Change) */}
+        <div className="md:col-span-2 space-y-6">
+          <div className="glass p-6 rounded-3xl space-y-6 shadow-sm">
+            <h3 className="text-lg font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <User className="w-5 h-5 text-primary-500" />
+              <span>Profile Details</span>
+            </h3>
 
-          <form onSubmit={handleSaveProfile} className="space-y-4">
-            <div>
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Username</label>
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 text-slate-655 dark:text-slate-100 text-sm w-full">
-                <span className="font-semibold select-none text-slate-400 dark:text-slate-500">@</span>
-                <span>{user?.username}</span>
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Username</label>
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 text-slate-655 dark:text-slate-100 text-sm w-full">
+                  <span className="font-semibold select-none text-slate-400 dark:text-slate-500">@</span>
+                  <span>{user?.username}</span>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Full Name</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 dark:text-slate-500">
-                  <User className="w-4 h-4" />
-                </span>
-                <input
-                  type="text"
-                  name="fullName"
-                  placeholder="Enter your full name"
-                  value={profileForm.fullName}
-                  onChange={handleProfileChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                />
+              <div>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Full Name</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 dark:text-slate-500">
+                    <User className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="text"
+                    name="fullName"
+                    placeholder="Enter your full name"
+                    value={profileForm.fullName}
+                    onChange={handleProfileChange}
+                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Email ID</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 dark:text-slate-500">
-                  <Mail className="w-4 h-4" />
-                </span>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="name@company.com"
-                  value={profileForm.email}
-                  onChange={handleProfileChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                />
+              <div>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Email ID</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 dark:text-slate-500">
+                    <Mail className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="name@company.com"
+                    value={profileForm.email}
+                    onChange={handleProfileChange}
+                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Contact Number</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 dark:text-slate-500">
-                  <Phone className="w-4 h-4" />
-                </span>
-                <input
-                  type="tel"
-                  name="contactNumber"
-                  placeholder="+91 98765 43210"
-                  value={profileForm.contactNumber}
-                  onChange={handleProfileChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                />
+              <div>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Contact Number</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 dark:text-slate-500">
+                    <Phone className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="tel"
+                    name="contactNumber"
+                    placeholder="+91 98765 43210"
+                    value={profileForm.contactNumber}
+                    onChange={handleProfileChange}
+                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-medium text-sm rounded-xl shadow-md transition-all cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                <span>{isSaving ? 'Saving...' : 'Save Profile'}</span>
-              </button>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-medium text-sm rounded-xl shadow-md transition-all cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{isSaving ? 'Saving...' : 'Save Profile'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {user?.role === 'ROLE_MANAGER' && (
+            <div className="glass p-6 rounded-3xl space-y-6 shadow-sm">
+              <h3 className="text-lg font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <KeyRound className="w-5 h-5 text-primary-500" />
+                <span>Change Password</span>
+              </h3>
+
+              <form onSubmit={handleSavePassword} className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">New Password</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 dark:text-slate-500">
+                      <Lock className="w-4 h-4" />
+                    </span>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Min 8 chars, letters, numbers & special chars"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full pl-10 pr-10 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-200 uppercase tracking-wider block mb-1">Confirm New Password</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 dark:text-slate-500">
+                      <Lock className="w-4 h-4" />
+                    </span>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Retype your new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-medium text-sm rounded-xl shadow-md transition-all cursor-pointer"
+                  >
+                    <KeyRound className="w-4 h-4" />
+                    <span>{isChangingPassword ? 'Updating...' : 'Update Password'}</span>
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          )}
         </div>
 
         {/* Theme Settings Column */}
