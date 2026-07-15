@@ -50,6 +50,7 @@ const Dashboard = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [currentModalTime, setCurrentModalTime] = useState(new Date());
 
   // Calendar View State
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('tms-dashboard-viewMode') || 'list'); // 'list' | 'calendar'
@@ -130,6 +131,15 @@ const Dashboard = () => {
   }, [user]);
 
   useEffect(() => {
+    if (!isCreateModalOpen) return;
+    setCurrentModalTime(new Date());
+    const timer = setInterval(() => {
+      setCurrentModalTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isCreateModalOpen]);
+
+  useEffect(() => {
     const taskId = localStorage.getItem('open-task-id');
     if (taskId) {
       localStorage.removeItem('open-task-id');
@@ -140,18 +150,23 @@ const Dashboard = () => {
   // Handle Input Changes
   const handleFormChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'dueDate' && value) {
+      const prevDatePart = taskForm.dueDate ? taskForm.dueDate.substring(0, 10) : '';
+      const newDatePart = value.substring(0, 10);
+      if (prevDatePart !== newDatePart) {
+        setTaskForm(prev => ({ ...prev, dueDate: `${newDatePart}T23:59` }));
+        return;
+      }
+    }
     setTaskForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // Helper to get current time in ISO local format
+  // Helper to get current time in ISO local format defaulting to 23:59
   const getCurrentLocalDateTime = (targetDate = new Date()) => {
     const year = targetDate.getFullYear();
     const month = String(targetDate.getMonth() + 1).padStart(2, '0');
     const day = String(targetDate.getDate()).padStart(2, '0');
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return `${year}-${month}-${day}T23:59`;
   };
 
   // Open Create Modal
@@ -1271,8 +1286,18 @@ const Dashboard = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={() => setIsCreateModalOpen(false)} />
           <div className="glass rounded-3xl w-full max-w-lg shadow-2xl relative border border-slate-200 dark:border-slate-800 overflow-hidden text-slate-800 dark:text-slate-100">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-xl font-bold">{taskForm.id ? 'Edit Task Details' : 'Assign New Task'}</h2>
+              <div className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 bg-slate-100/55 dark:bg-slate-900/55 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-800/50">
+                {(() => {
+                  const day = String(currentModalTime.getDate()).padStart(2, '0');
+                  const month = String(currentModalTime.getMonth() + 1).padStart(2, '0');
+                  const year = currentModalTime.getFullYear();
+                  const hours = String(currentModalTime.getHours()).padStart(2, '0');
+                  const minutes = String(currentModalTime.getMinutes()).padStart(2, '0');
+                  return `${day}-${month}-${year} ${hours}:${minutes}`;
+                })()}
+              </div>
             </div>
             
             <form onSubmit={handleSaveTask} className="p-6 space-y-4">
