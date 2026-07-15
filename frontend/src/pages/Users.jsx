@@ -521,20 +521,22 @@ const Users = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                  Password {userForm.id && '(Leave blank to keep current)'}
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={userForm.password}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500/50"
-                  required={!userForm.id}
-                />
-              </div>
+              {(!userForm.id || user.role === 'ROLE_ADMIN') && (
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    Password {userForm.id && '(Leave blank to keep current)'}
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={userForm.password}
+                    onChange={handleInputChange}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                    required={!userForm.id}
+                  />
+                </div>
+              )}
 
               {/* Role select (Only Admin can create Managers or Admins. Managers can only create Employees, so it is fixed) */}
               {user.role === 'ROLE_ADMIN' ? (
