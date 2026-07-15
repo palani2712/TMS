@@ -20,9 +20,6 @@ public class OtpService {
 
     @Transactional
     public String generateOtp(String username) {
-        // Delete any existing OTP for this user
-        otpRepository.deleteByUsername(username);
-
         // Generate 6-digit OTP code
         int code = 100000 + random.nextInt(900000);
         String otpCode = String.valueOf(code);
@@ -30,7 +27,14 @@ public class OtpService {
         // Set expiry to 5 minutes from now
         LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(5);
 
-        PasswordResetOtp otp = new PasswordResetOtp(username, otpCode, expiryDate);
+        // Find existing OTP or create a new one to avoid duplicate key exceptions due to Hibernate flush order
+        PasswordResetOtp otp = otpRepository.findByUsername(username)
+                .orElse(new PasswordResetOtp());
+        
+        otp.setUsername(username);
+        otp.setOtpCode(otpCode);
+        otp.setExpiryDate(expiryDate);
+
         otpRepository.save(otp);
 
         return otpCode;
