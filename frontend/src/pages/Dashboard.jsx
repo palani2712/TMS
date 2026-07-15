@@ -575,8 +575,10 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Workspace Overview</h1>
-          <p className="text-slate-500 dark:text-slate-400">Welcome, {user?.username}. Track and manage tasks here.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Welcome Back, {user?.role === 'ROLE_ADMIN' ? 'General Manager' : user?.role === 'ROLE_MANAGER' ? 'Manager' : 'Employee'}
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400">Here's an overview of your tasks</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -743,7 +745,10 @@ const Dashboard = () => {
         >
           <div>
             <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block">Pending</span>
-            <span className="text-3xl font-black mt-1 block">{stats.pending}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black mt-1 block">{stats.pending}</span>
+              <span className="text-xs text-slate-400">({stats.total > 0 ? Math.round((stats.pending/stats.total)*100) : 0}%)</span>
+            </div>
           </div>
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-500 rounded-xl">
             <Clock className="w-6 h-6" />
@@ -757,7 +762,10 @@ const Dashboard = () => {
         >
           <div>
             <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block text-rose-600 dark:text-rose-400">Overdue</span>
-            <span className="text-3xl font-black mt-1 block text-rose-600 dark:text-rose-400">{stats.overdue}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black mt-1 block text-rose-600 dark:text-rose-400">{stats.overdue}</span>
+              <span className="text-xs text-rose-600/70 dark:text-rose-400/70">({stats.total > 0 ? Math.round((stats.overdue/stats.total)*100) : 0}%)</span>
+            </div>
           </div>
           <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-500 rounded-xl">
             <AlertCircle className="w-6 h-6" />
@@ -771,7 +779,10 @@ const Dashboard = () => {
         >
           <div>
             <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block text-amber-600 dark:text-amber-400">On-Hold</span>
-            <span className="text-3xl font-black mt-1 block text-amber-600 dark:text-amber-400">{stats.onHold}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black mt-1 block text-amber-600 dark:text-amber-400">{stats.onHold}</span>
+              <span className="text-xs text-amber-600/70 dark:text-amber-400/70">({stats.total > 0 ? Math.round((stats.onHold/stats.total)*100) : 0}%)</span>
+            </div>
           </div>
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-500 rounded-xl">
             <AlertCircle className="w-6 h-6" />
@@ -847,7 +858,7 @@ const Dashboard = () => {
         <div className="glass p-6 rounded-2xl shadow-sm flex flex-col justify-between">
           <div>
             <h3 className="font-bold text-base mb-1">Productivity Insights</h3>
-            <p className="text-slate-500 dark:text-slate-400 text-xs">A snapshot of today's workplace efficiency</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs">A snapshot of the workspace efficiency</p>
           </div>
           <div className="space-y-4 my-6 flex-1 flex flex-col justify-center">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
@@ -857,17 +868,25 @@ const Dashboard = () => {
               </span>
             </div>
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+              <span className="text-slate-500 dark:text-slate-400 text-sm">Pending Work</span>
+              <span className="font-bold text-sm text-slate-500">
+                {stats.pending > 0 ? `${stats.pending} Tasks` : 'None'}
+              </span>
+            </div>
+            <div className={`flex items-center justify-between pb-2 ${user.role !== 'ROLE_EMPLOYEE' ? 'border-b border-slate-100 dark:border-slate-800' : ''}`}>
               <span className="text-slate-500 dark:text-slate-400 text-sm">Overdue Warning</span>
               <span className={`font-bold text-sm ${stats.overdue > 0 ? 'text-rose-500' : 'text-slate-500'}`}>
                 {stats.overdue > 0 ? `${stats.overdue} Tasks` : 'None'}
               </span>
             </div>
-            <div className="flex items-center justify-between pb-2">
-              <span className="text-slate-500 dark:text-slate-400 text-sm">Team Scope</span>
-              <span className="font-bold text-sm">
-                {employees.length} Active Users
-              </span>
-            </div>
+            {user.role !== 'ROLE_EMPLOYEE' && (
+              <div className="flex items-center justify-between pb-2">
+                <span className="text-slate-500 dark:text-slate-400 text-sm">Team Scope</span>
+                <span className="font-bold text-sm">
+                  {employees.length} Active Users
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
