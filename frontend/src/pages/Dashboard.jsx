@@ -41,8 +41,8 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [priorityFilter, setPriorityFilter] = useState('ALL');
-  const [sortBy, setSortBy] = useState('createdDate');
-  const [displayMode, setDisplayMode] = useState('default'); // 'default' | 'table'
+  const [sortBy, setSortBy] = useState(() => localStorage.getItem('tms-dashboard-sortBy') || 'createdDate');
+  const [displayMode, setDisplayMode] = useState(() => localStorage.getItem('tms-dashboard-displayMode') || 'default'); // 'default' | 'table'
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
@@ -52,7 +52,7 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
 
   // Calendar View State
-  const [viewMode, setViewMode] = useState('list'); // 'list' | 'calendar'
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('tms-dashboard-viewMode') || 'list'); // 'list' | 'calendar'
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Form State (Task Create/Edit)
@@ -67,7 +67,7 @@ const Dashboard = () => {
 
   const [commentText, setCommentText] = useState('');
   const [isExportOpen, setIsExportOpen] = useState(false);
-  const [assignmentFilter, setAssignmentFilter] = useState('ALL'); // 'ALL' | 'ASSIGNED_TO_OTHERS' | 'SELF_ASSIGNED'
+  const [assignmentFilter, setAssignmentFilter] = useState(() => localStorage.getItem('tms-dashboard-assignmentFilter') || 'ALL'); // 'ALL' | 'ASSIGNED_TO_OTHERS' | 'SELF_ASSIGNED'
 
   // Day Tasks Modal State
   const [isDayTasksModalOpen, setIsDayTasksModalOpen] = useState(false);
@@ -106,6 +106,22 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    localStorage.setItem('tms-dashboard-sortBy', sortBy);
+  }, [sortBy]);
+
+  useEffect(() => {
+    localStorage.setItem('tms-dashboard-displayMode', displayMode);
+  }, [displayMode]);
+
+  useEffect(() => {
+    localStorage.setItem('tms-dashboard-viewMode', viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    localStorage.setItem('tms-dashboard-assignmentFilter', assignmentFilter);
+  }, [assignmentFilter]);
 
   useEffect(() => {
     fetchData();
