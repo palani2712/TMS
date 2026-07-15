@@ -82,27 +82,72 @@ const Sidebar = () => {
     }
   }, [user]);
 
+  const applyPredefinedTheme = (choice) => {
+    const predefinedThemes = {
+      dark: {
+        colors: {
+          50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa',
+          500: '#a78bfa', 600: '#8b5cf6', 700: '#7c3aed', 800: '#6d28d9', 900: '#4c1d95'
+        },
+        themeVars: {
+          '--color-bg-app': '#000000',
+          '--color-bg-card': 'rgba(24, 24, 27, 0.85)',
+          '--color-text-main': '#f8fafc',
+          '--color-border-main': 'rgba(255, 255, 255, 0.15)',
+          '--color-chart-completed': '#10b981',
+          '--color-chart-pending': '#3b82f6',
+          '--color-chart-overdue': '#ef4444',
+          '--color-chart-onhold': '#d97706',
+          '--color-autofill-bg': '#090d16',
+          '--color-autofill-text': '#ffffff'
+        }
+      },
+      light: {
+        colors: {
+          50: '#f0f9ff', 100: '#92c4e9', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8',
+          500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#0c4a6e', 900: '#082f49'
+        },
+        themeVars: {
+          '--color-bg-app': '#b3e0ff',
+          '--color-bg-card': 'rgba(255, 255, 255, 0.8)',
+          '--color-text-main': '#0c4a6e',
+          '--color-border-main': 'rgba(14, 165, 233, 0.4)',
+          '--color-chart-completed': '#10b981',
+          '--color-chart-pending': '#3b82f6',
+          '--color-chart-overdue': '#ef4444',
+          '--color-chart-onhold': '#d97706',
+          '--color-autofill-bg': '#f8fafc',
+          '--color-autofill-text': '#0f172a'
+        }
+      }
+    };
+    const config = predefinedThemes[choice];
+    if (config) {
+      Object.entries(config.colors).forEach(([shade, value]) => {
+        document.documentElement.style.setProperty(`--color-primary-${shade}`, value);
+      });
+      Object.entries(config.themeVars).forEach(([varName, value]) => {
+        document.documentElement.style.setProperty(varName, value);
+      });
+      document.body.style.backgroundImage = 'none';
+    }
+  };
+
   const toggleTheme = () => {
     if (!user) return;
     const username = user.username;
     if (darkMode) {
       document.documentElement.classList.remove('dark');
       localStorage.setItem(`theme-${username}`, 'light');
+      localStorage.setItem(`theme-choice-${username}`, 'light');
       setDarkMode(false);
-      const currentTheme = localStorage.getItem(`theme-choice-${username}`) || 'light';
-      if (currentTheme === 'dark') {
-        localStorage.setItem(`theme-choice-${username}`, 'light');
-        window.location.reload();
-      }
+      applyPredefinedTheme('light');
     } else {
       document.documentElement.classList.add('dark');
       localStorage.setItem(`theme-${username}`, 'dark');
+      localStorage.setItem(`theme-choice-${username}`, 'dark');
       setDarkMode(true);
-      const currentTheme = localStorage.getItem(`theme-choice-${username}`) || 'light';
-      if (currentTheme !== 'dark') {
-        localStorage.setItem(`theme-choice-${username}`, 'dark');
-        window.location.reload();
-      }
+      applyPredefinedTheme('dark');
     }
   };
 

@@ -46,4 +46,9 @@ public class AuthController {
                 user.isPasswordResetAllowed()
         ));
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("OK");
+    }
 }
