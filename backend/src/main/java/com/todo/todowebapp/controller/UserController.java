@@ -181,7 +181,11 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> adminCreateUser(@RequestBody UserDto userDto, Authentication authentication) {
         try {
+            if (userDto.getEmail() == null || userDto.getEmail().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Error: Email is required.");
+            }
             User newUser = new User(userDto.getUsername(), userDto.getPassword(), userDto.getRole());
+            newUser.setEmail(userDto.getEmail().trim());
             if (userDto.getRole() == Role.ROLE_EMPLOYEE) {
                 if (userDto.getManagerUsername() == null || userDto.getManagerUsername().trim().isEmpty()) {
                     return ResponseEntity.badRequest().body("Error: Employee must be assigned under a manager.");
@@ -267,9 +271,13 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<?> managerCreateEmployee(@RequestBody UserDto userDto, Authentication authentication) {
         try {
+            if (userDto.getEmail() == null || userDto.getEmail().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Error: Email is required.");
+            }
             User creator = userService.findByUsername(authentication.getName())
                     .orElseThrow(() -> new IllegalArgumentException("Creator not found"));
             User newUser = new User(userDto.getUsername(), userDto.getPassword(), Role.ROLE_EMPLOYEE);
+            newUser.setEmail(userDto.getEmail().trim());
             
             if (creator.getRole() == Role.ROLE_MANAGER) {
                 newUser.setManager(creator);
