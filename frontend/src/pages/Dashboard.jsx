@@ -576,7 +576,7 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Welcome Back, {user?.role === 'ROLE_ADMIN' ? 'General Manager' : user?.role === 'ROLE_MANAGER' ? 'Manager' : 'Employee'}
+            Welcome Back
           </h1>
           <p className="text-slate-500 dark:text-slate-400">Here's an overview of your tasks</p>
         </div>
