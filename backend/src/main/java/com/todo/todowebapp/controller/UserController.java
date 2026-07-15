@@ -76,10 +76,10 @@ public class UserController {
                     .body("Error: General Managers are not allowed to change their passwords.");
         }
 
-        // Rule: Managers and Employees must have passwordResetAllowed = true.
-        if (!user.isPasswordResetAllowed()) {
+        // Rule: Employees must have passwordResetAllowed = true. Managers can change their own password anytime.
+        if (user.getRole() == Role.ROLE_EMPLOYEE && !user.isPasswordResetAllowed()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Error: You do not have permission to change your password. Please ask the General Manager.");
+                    .body("Error: You do not have permission to change your password. Please ask the Manager.");
         }
 
         try {

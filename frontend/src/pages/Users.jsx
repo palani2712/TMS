@@ -559,7 +559,13 @@ const Users = () => {
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">User Role</label>
                   <input
                     type="text"
-                    value="Employee"
+                    value={
+                      userForm.role === 'ROLE_ADMIN'
+                        ? 'General Manager'
+                        : userForm.role === 'ROLE_MANAGER'
+                          ? 'Manager'
+                          : 'Employee'
+                    }
                     className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold cursor-not-allowed text-sm"
                     disabled
                   />
