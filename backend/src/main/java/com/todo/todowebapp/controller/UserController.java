@@ -310,13 +310,10 @@ public class UserController {
                 if (existing.getManager() == null || !existing.getManager().getId().equals(user.getId())) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only edit employees assigned under you.");
                 }
-                if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers are not allowed to change employee passwords.");
-                }
             }
 
-            // Update employee credentials (manager can assign username)
-            User updated = userService.updateUser(existing, userDto.getUsername(), user.getRole() == Role.ROLE_ADMIN ? userDto.getPassword() : null, authentication.getName());
+            // Update employee credentials (manager can assign username or change password)
+            User updated = userService.updateUser(existing, userDto.getUsername(), userDto.getPassword(), authentication.getName());
             return ResponseEntity.ok(new UserDto(updated.getId(), updated.getUsername(), updated.getRole(), updated.isPasswordResetAllowed()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
