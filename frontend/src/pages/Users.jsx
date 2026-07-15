@@ -34,6 +34,7 @@ const Users = () => {
     username: '',
     password: '',
     role: 'ROLE_EMPLOYEE',
+    email: '',
     managerUsername: '',
   });
 
@@ -81,6 +82,7 @@ const Users = () => {
       username: '',
       password: '',
       role: 'ROLE_EMPLOYEE',
+      email: '',
       managerUsername: '',
     });
     setIsModalOpen(true);
@@ -92,6 +94,7 @@ const Users = () => {
       username: targetUser.username,
       password: '', // Leave blank unless updating password
       role: targetUser.role,
+      email: targetUser.email || '',
       managerUsername: targetUser.managerUsername || '',
     });
     setIsModalOpen(true);
@@ -103,11 +106,20 @@ const Users = () => {
       showToast('Username is required.', 'error');
       return;
     }
+    if (!userForm.email || !userForm.email.trim()) {
+      showToast('Email ID is required.', 'error');
+      return;
+    }
+    if (!userForm.email.trim().toLowerCase().endsWith('.com')) {
+      showToast('Email ID must end with .com', 'error');
+      return;
+    }
 
     try {
       const payload = {
         username: userForm.username,
         role: userForm.role,
+        email: userForm.email.trim(),
       };
       if (userForm.password.trim()) {
         if (userForm.password.length < 8) {
@@ -518,6 +530,19 @@ const Users = () => {
                   className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500/50"
                   required
                   disabled={userForm.id !== null && user.role !== 'ROLE_ADMIN'} // Managers can't edit existing username if restrictions apply, but let's follow the standard rule (employees cannot edit own username). GMs can edit.
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Email ID</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={userForm.email || ''}
+                  onChange={handleInputChange}
+                  placeholder="name@company.com"
+                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                  required
                 />
               </div>
 

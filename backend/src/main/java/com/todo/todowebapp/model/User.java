@@ -37,6 +37,9 @@ public class User {
     @Column(name = "full_name")
     private String fullName;
 
+    @NotBlank
+    @jakarta.validation.constraints.Email
+    @Column(nullable = false)
     private String email;
 
     @Column(name = "contact_number")
