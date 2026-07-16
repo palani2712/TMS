@@ -13,8 +13,8 @@ const ChangePassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Check if user has permission to change their password (GM cannot change password, others need reset permission)
-  const hasPermission = user?.role !== 'ROLE_ADMIN' && user?.passwordResetAllowed;
+  // Check if user has permission to change their password (everyone can now change password)
+  const hasPermission = true;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -357,7 +357,6 @@ const Users = () => {
                 <tr className="bg-slate-50 dark:bg-slate-900/40 text-slate-500 font-bold uppercase tracking-wider text-xs border-b border-slate-100 dark:border-slate-800">
                   <th className="p-4 text-center">Username</th>
                   <th className="p-4 text-center">Role Badge</th>
-                  <th className="p-4 text-center">Password reset privilege</th>
                   {user.role === 'ROLE_ADMIN' && <th className="p-4 text-center">Password reset</th>}
                   <th className="p-4 text-center">Actions</th>
                 </tr>
@@ -393,33 +392,6 @@ const Users = () => {
                         </span>
                       </td>
 
-                      {/* Reset privilege toggle */}
-                      <td className="p-4 text-center">
-                        {(item.role === 'ROLE_EMPLOYEE' || (user.role === 'ROLE_ADMIN' && item.role === 'ROLE_MANAGER')) ? (
-                          <button
-                            onClick={() => handleToggleResetPermission(item)}
-                            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all mx-auto ${
-                              item.passwordResetAllowed 
-                                ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-900/30 text-emerald-700' 
-                                : 'bg-rose-50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900/30 text-rose-700'
-                            }`}
-                          >
-                            {item.passwordResetAllowed ? (
-                              <>
-                                <UserCheck2 className="w-3.5 h-3.5" />
-                                <span>Allowed</span>
-                              </>
-                            ) : (
-                              <>
-                                <UserMinus className="w-3.5 h-3.5" />
-                                <span>Restricted</span>
-                              </>
-                            )}
-                          </button>
-                        ) : (
-                          <span className="text-slate-400 text-xs italic">Not Applicable</span>
-                        )}
-                      </td>
 
                       {/* GM-only Password Change Column */}
                       {user.role === 'ROLE_ADMIN' && (

@@ -510,7 +510,7 @@ const Settings = () => {
             </form>
           </div>
 
-          {user?.role === 'ROLE_MANAGER' && (
+          {user && (
             <div className="glass p-6 rounded-3xl space-y-6 shadow-sm">
               <h3 className="text-lg font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <KeyRound className="w-5 h-5 text-primary-500" />
