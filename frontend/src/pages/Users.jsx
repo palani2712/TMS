@@ -14,7 +14,8 @@ import {
   UserCheck2,
   Key,
   Info,
-  ChevronDown
+  ChevronDown,
+  Users
 } from 'lucide-react';
 
 const Users = () => {
