@@ -284,7 +284,7 @@ const Users = () => {
   return (
     <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pl-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
             <Users className="w-8 h-8 text-primary-500" />
@@ -453,7 +453,7 @@ const Users = () => {
                     {/* Expandable Details Sub-row */}
                     {expandedUserId === item.id && (
                       <tr className="bg-slate-100/60 dark:bg-slate-900/40">
-                        <td colSpan={user.role === 'ROLE_ADMIN' ? 5 : 4} className="p-4">
+                        <td colSpan={user.role === 'ROLE_ADMIN' ? 4 : 3} className="p-4">
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-5 rounded-2xl bg-white/50 dark:bg-black border border-slate-200/60 dark:border-slate-800/40 shadow-inner animate-fadeIn text-left sm:pl-24">
                             <div className="space-y-1">
                               <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Full Name</span>
