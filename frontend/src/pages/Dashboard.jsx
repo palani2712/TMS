@@ -727,10 +727,10 @@ const Dashboard = () => {
           className="glass p-6 rounded-2xl flex items-center justify-between shadow-sm cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all hover:border-emerald-200 dark:hover:border-emerald-900/40"
         >
           <div>
-            <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block">Completed</span>
+            <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block text-emerald-600 dark:text-emerald-400">Completed</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black mt-1 block">{stats.completed}</span>
-              <span className="text-xs text-slate-400">({stats.total > 0 ? Math.round((stats.completed/stats.total)*100) : 0}%)</span>
+              <span className="text-3xl font-black mt-1 block text-emerald-600 dark:text-emerald-400">{stats.completed}</span>
+              <span className="text-xs text-emerald-650/70 dark:text-emerald-400/70">({stats.total > 0 ? Math.round((stats.completed/stats.total)*100) : 0}%)</span>
             </div>
           </div>
           <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-500 rounded-xl">
@@ -744,10 +744,10 @@ const Dashboard = () => {
           className="glass p-6 rounded-2xl flex items-center justify-between shadow-sm cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all hover:border-amber-200 dark:hover:border-amber-900/40"
         >
           <div>
-            <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block">Pending</span>
+            <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block text-amber-500 dark:text-amber-400">Pending</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black mt-1 block">{stats.pending}</span>
-              <span className="text-xs text-slate-400">({stats.total > 0 ? Math.round((stats.pending/stats.total)*100) : 0}%)</span>
+              <span className="text-3xl font-black mt-1 block text-amber-500 dark:text-amber-400">{stats.pending}</span>
+              <span className="text-xs text-amber-500/70 dark:text-amber-400/70">({stats.total > 0 ? Math.round((stats.pending/stats.total)*100) : 0}%)</span>
             </div>
           </div>
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-500 rounded-xl">
@@ -775,16 +775,16 @@ const Dashboard = () => {
         {/* On-Hold */}
         <div 
           onClick={() => handleStatClick('ON_HOLD')}
-          className="glass p-6 rounded-2xl flex items-center justify-between shadow-sm cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all hover:border-amber-200 dark:hover:border-amber-900/40"
+          className="glass p-6 rounded-2xl flex items-center justify-between shadow-sm cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all hover:border-orange-200 dark:hover:border-orange-900/40"
         >
           <div>
-            <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block text-amber-600 dark:text-amber-400">On-Hold</span>
+            <span className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider block text-orange-500 dark:text-orange-400">On-Hold</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black mt-1 block text-amber-600 dark:text-amber-400">{stats.onHold}</span>
-              <span className="text-xs text-amber-600/70 dark:text-amber-400/70">({stats.total > 0 ? Math.round((stats.onHold/stats.total)*100) : 0}%)</span>
+              <span className="text-3xl font-black mt-1 block text-orange-500 dark:text-orange-400">{stats.onHold}</span>
+              <span className="text-xs text-orange-500/70 dark:text-orange-400/70">({stats.total > 0 ? Math.round((stats.onHold/stats.total)*100) : 0}%)</span>
             </div>
           </div>
-          <div className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-500 rounded-xl">
+          <div className="p-3 bg-orange-50 dark:bg-orange-950/40 text-orange-500 rounded-xl">
             <AlertCircle className="w-6 h-6" />
           </div>
         </div>
