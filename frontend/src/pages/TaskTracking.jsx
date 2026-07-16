@@ -152,7 +152,7 @@ const TaskTracking = () => {
   return (
     <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
       {/* Header */}
-      <div>
+      <div className="pl-4">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           <ClipboardList className="w-8 h-8 text-primary-500" />
           <span>Task Tracking</span>
