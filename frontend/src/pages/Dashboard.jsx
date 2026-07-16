@@ -577,9 +577,9 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Welcome Back {user?.role === 'ROLE_ADMIN' ? 'GM' : user?.role === 'ROLE_MANAGER' ? 'Manager' : 'Employee'}
+            Welcome Back
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">Here's an overview of your tasks</p>
+          <p className="text-slate-500 dark:text-slate-400">Here's an overview of your tasks.</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -802,7 +802,7 @@ const Dashboard = () => {
           <div className="h-44 flex items-end justify-around gap-4 px-4 mt-6">
             {/* Completed Bar */}
             <div className="flex flex-col items-center w-full max-w-[80px] gap-2 group">
-              <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-t-xl h-28 relative flex items-end overflow-hidden">
+              <div className="w-full bg-slate-300 dark:bg-slate-800 rounded-t-xl h-28 relative flex items-end overflow-hidden">
                 <div 
                   style={{ 
                     height: `${stats.total > 0 ? (stats.completed/stats.total)*100 : 0}%`,
@@ -815,7 +815,7 @@ const Dashboard = () => {
             </div>
             {/* In Progress / Pending Bar */}
             <div className="flex flex-col items-center w-full max-w-[80px] gap-2 group">
-              <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-t-xl h-28 relative flex items-end overflow-hidden">
+              <div className="w-full bg-slate-300 dark:bg-slate-800 rounded-t-xl h-28 relative flex items-end overflow-hidden">
                 <div 
                   style={{ 
                     height: `${stats.total > 0 ? (stats.pending/stats.total)*100 : 0}%`,
@@ -828,7 +828,7 @@ const Dashboard = () => {
             </div>
             {/* Overdue Bar */}
             <div className="flex flex-col items-center w-full max-w-[80px] gap-2 group">
-              <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-t-xl h-28 relative flex items-end overflow-hidden">
+              <div className="w-full bg-slate-300 dark:bg-slate-800 rounded-t-xl h-28 relative flex items-end overflow-hidden">
                 <div 
                   style={{ 
                     height: `${stats.total > 0 ? (stats.overdue/stats.total)*100 : 0}%`,
@@ -841,7 +841,7 @@ const Dashboard = () => {
             </div>
             {/* On-Hold Bar */}
             <div className="flex flex-col items-center w-full max-w-[80px] gap-2 group">
-              <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-t-xl h-28 relative flex items-end overflow-hidden">
+              <div className="w-full bg-slate-300 dark:bg-slate-800 rounded-t-xl h-28 relative flex items-end overflow-hidden">
                 <div 
                   style={{ 
                     height: `${stats.total > 0 ? (stats.onHold/stats.total)*100 : 0}%`,
@@ -1086,7 +1086,7 @@ const Dashboard = () => {
                             <tr 
                               key={task.id} 
                               onClick={() => openDetailsModal(task)}
-                              className="hover:bg-slate-100/30 dark:hover:bg-slate-900/5 transition-colors cursor-pointer"
+                              className="hover:bg-slate-100/30 dark:hover:bg-slate-900/5 transition-colors cursor-pointer border-b border-slate-100 dark:border-slate-800/80"
                             >
                               <td className="p-4 font-semibold text-slate-700 dark:text-slate-300 max-w-[200px] truncate" title={task.title}>
                                 <div className="flex items-center gap-2">

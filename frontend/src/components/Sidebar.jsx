@@ -198,7 +198,7 @@ const Sidebar = () => {
       {/* Sidebar shell */}
       <aside className={`fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 w-64 lg:static lg:flex flex-col glass dark:bg-slate-900/90 border-r h-full max-h-screen text-[var(--color-text-main)]`}>
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between gap-4">
+        <div className="p-6 border-b border-slate-400 dark:border-slate-700/80 flex items-center justify-between gap-4">
           <div className="flex items-center h-10 max-w-[130px]">
             <img src={darkMode ? '/logo-dark-cs.png' : '/logo-light-cs.png'} alt="CSHR Logo" className="h-10 w-auto object-contain" />
           </div>
@@ -284,7 +284,7 @@ const Sidebar = () => {
         </div>
 
         {/* User Card */}
-        <div className="p-6 border-b border-slate-300 dark:border-slate-800 flex flex-col items-center text-center">
+        <div className="p-6 border-b border-slate-400 dark:border-slate-700/80 flex flex-col items-center text-center">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary-500 to-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-md uppercase mb-3 select-none">
             {user?.username?.substring(0, 2)}
           </div>
@@ -319,7 +319,7 @@ const Sidebar = () => {
         </nav>
 
         {/* Footer Logout */}
-        <div className="p-4 border-t border-slate-300 dark:border-slate-800">
+        <div className="p-4 border-t border-slate-400 dark:border-slate-700/80">
           <button
             onClick={() => setIsLogoutModalOpen(true)}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-medium text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all duration-200"

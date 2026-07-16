@@ -420,12 +420,16 @@ const Settings = () => {
   return (
     <div className="p-6 space-y-8 max-w-4xl mx-auto w-full">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-          <SettingsIcon className="w-8 h-8 text-primary-500 animate-spin-slow" />
-          <span>System Settings</span>
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400">Configure your profile details and dynamic workspace themes.</p>
+      <div className="flex gap-3 items-start">
+        <SettingsIcon className="w-8 h-8 text-primary-500 animate-spin-slow mt-1 shrink-0" />
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Settings
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Manage your profile information, change your password, and customize your workspace with dynamic themes.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
