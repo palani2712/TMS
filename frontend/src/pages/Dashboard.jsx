@@ -12,6 +12,7 @@ import {
   Clock, 
   CheckCircle, 
   ClipboardList,
+  LayoutGrid,
   MessageSquare,
   ChevronRight,
   User,
@@ -592,8 +593,8 @@ const Dashboard = () => {
                   : 'text-[var(--color-button-secondary-text)] hover:opacity-90'
               }`}
             >
-              <ClipboardList className="w-4 h-4" />
-              <span>List</span>
+              <LayoutGrid className="w-4 h-4" />
+              <span>Grid</span>
             </button>
             <button
               onClick={() => setViewMode('calendar')}
