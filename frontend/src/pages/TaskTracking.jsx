@@ -250,7 +250,7 @@ const TaskTracking = () => {
                       <p className="text-sm text-slate-400 italic py-2">No tasks assigned to this user.</p>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse text-xs">
+                        <table className="w-full text-left border-collapse text-xs table-lined">
                           <thead>
                             <tr className="text-slate-400 uppercase font-bold tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2">
                               <th className="pb-3">Task Title</th>

@@ -119,8 +119,8 @@ textarea {
 
 /* Explicit table row separator lines */
 .table-lined td {
-  border-bottom: 1.5px solid rgba(14, 165, 233, 0.15) !important;
+  border-bottom: 1.5px solid rgba(14, 165, 233, 0.4) !important;
 }
 .dark .table-lined td {
-  border-bottom: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.22) !important;
 }
