@@ -583,27 +583,27 @@ const Dashboard = () => {
         
         <div className="flex items-center gap-3">
           {/* View Toggle */}
-          <div className="flex items-center bg-[#92c4e9] dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-inner">
+          <div className="flex items-center bg-[#92c4e9] dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-inner h-[46px]">
             <button
               onClick={() => setViewMode('list')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all h-full ${
                 viewMode === 'list'
                   ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-[var(--color-sidebar-item-hover-text)]'
+                  : 'text-[var(--color-button-secondary-text)] hover:opacity-90'
               }`}
             >
-              <ClipboardList className="w-3.5 h-3.5" />
+              <ClipboardList className="w-4 h-4" />
               <span>List</span>
             </button>
             <button
               onClick={() => setViewMode('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all h-full ${
                 viewMode === 'calendar'
                   ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-[var(--color-sidebar-item-hover-text)]'
+                  : 'text-[var(--color-button-secondary-text)] hover:opacity-90'
               }`}
             >
-              <Calendar className="w-3.5 h-3.5" />
+              <Calendar className="w-4 h-4" />
               <span>Calendar</span>
             </button>
           </div>
