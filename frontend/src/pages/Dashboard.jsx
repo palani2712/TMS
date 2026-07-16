@@ -1064,7 +1064,7 @@ const Dashboard = () => {
               ) : (
                 <div className="glass rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-805/80 shadow-sm">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs">
+                    <table className="w-full text-left border-collapse text-xs table-lined">
                       <thead>
                         <tr className="text-slate-400 uppercase font-bold tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">
                           <th className="p-4">Task Title</th>

@@ -356,7 +356,7 @@ const Users = () => {
       ) : (
         <div className="glass rounded-3xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-800/60">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
+            <table className="w-full text-left border-collapse text-sm table-lined">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-900/40 text-slate-500 font-bold uppercase tracking-wider text-xs border-b border-slate-100 dark:border-slate-800">
                   <th className="p-4 text-center">Username</th>
