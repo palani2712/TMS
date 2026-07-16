@@ -152,14 +152,16 @@ const TaskTracking = () => {
   return (
     <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
       {/* Header */}
-      <div className="pl-4">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-          <ClipboardList className="w-8 h-8 text-primary-500" />
-          <span>Task Tracking</span>
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400">
-          Track the Assigned Tasks
-        </p>
+      <div className="pl-4 flex gap-3 items-start">
+        <ClipboardList className="w-8 h-8 text-primary-500 mt-1 shrink-0" />
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Task Tracking
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Track each user's work progress, priorities, and deadlines.
+          </p>
+        </div>
       </div>
 
       {/* Filter Toolbar */}
@@ -261,7 +263,7 @@ const TaskTracking = () => {
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-850">
                             {item.tasks.map(task => (
-                              <tr key={task.id} className="hover:bg-slate-100/30 dark:hover:bg-slate-900/5 transition-colors">
+                              <tr key={task.id} className="hover:bg-slate-100/30 dark:hover:bg-slate-900/5 transition-colors border-b border-slate-100 dark:border-slate-800/80">
                                 <td className="py-3 font-semibold text-slate-700 dark:text-slate-300 max-w-[250px] truncate" title={task.title}>
                                   {task.title}
                                 </td>

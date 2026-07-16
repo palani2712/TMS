@@ -286,14 +286,16 @@ const Users = () => {
     <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pl-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            <UsersIcon className="w-8 h-8 text-primary-500" />
-            <span>User Directory</span>
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
-            Create and Manager all te Users
-          </p>
+        <div className="flex gap-3 items-start">
+          <UsersIcon className="w-8 h-8 text-primary-500 mt-1 shrink-0" />
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              User Directory
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">
+              View, manage, and organize user accounts efficiently.
+            </p>
+          </div>
         </div>
 
         <button 
