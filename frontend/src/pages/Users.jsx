@@ -286,11 +286,12 @@ const Users = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Users Directory</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <Users className="w-8 h-8 text-primary-500" />
+            <span>User Directory</span>
+          </h1>
           <p className="text-slate-500 dark:text-slate-400">
-            {user.role === 'ROLE_ADMIN' 
-              ? 'Create and manage General Managers, Managers, and Employees.' 
-              : 'Create and manage Employee credentials and reset permissions.'}
+            Create and Manager all te Users
           </p>
         </div>
 
