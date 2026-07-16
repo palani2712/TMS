@@ -35,7 +35,7 @@ public class EmailService {
             LOGGER.info("OTP email successfully sent to: " + toEmail);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to send OTP email to " + toEmail + ". Error: " + e.getMessage(), e);
-            throw new RuntimeException("Error: Failed to send OTP email. Please ensure your SMTP configuration is correct.");
+            throw new RuntimeException("Error: Failed to send OTP email. Details: " + e.getMessage());
         }
     }
 }
