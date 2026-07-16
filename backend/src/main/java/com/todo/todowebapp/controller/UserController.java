@@ -70,18 +70,6 @@ public class UserController {
         User user = userService.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Rule: General Managers cannot change their password.
-        if (user.getRole() == Role.ROLE_ADMIN) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Error: General Managers are not allowed to change their passwords.");
-        }
-
-        // Rule: Employees must have passwordResetAllowed = true. Managers can change their own password anytime.
-        if (user.getRole() == Role.ROLE_EMPLOYEE && !user.isPasswordResetAllowed()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Error: You do not have permission to change your password. Please ask the Manager.");
-        }
-
         try {
             UserService.validatePassword(passwordDto.getPassword());
         } catch (IllegalArgumentException e) {
