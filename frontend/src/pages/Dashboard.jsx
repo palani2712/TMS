@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -86,6 +86,51 @@ const Dashboard = () => {
   const [floatingActiveTabId, setFloatingActiveTabId] = useState('');
   const [floatingEditingTabId, setFloatingEditingTabId] = useState('');
   const [floatingEditName, setFloatingEditName] = useState('');
+
+  // Draggable Notes Position State
+  const [floatingNotesPos, setFloatingNotesPos] = useState({ x: 0, y: 0 });
+  const [isDraggingNotes, setIsDraggingNotes] = useState(false);
+  const dragNotesStartRef = useRef({ x: 0, y: 0 });
+
+  const handleNotesMouseDown = (e) => {
+    if (e.button !== 0) return;
+    if (
+      e.target.closest('button') || 
+      e.target.closest('input') || 
+      e.target.closest('textarea')
+    ) {
+      return;
+    }
+    setIsDraggingNotes(true);
+    dragNotesStartRef.current = {
+      x: e.clientX - floatingNotesPos.x,
+      y: e.clientY - floatingNotesPos.y
+    };
+  };
+
+  useEffect(() => {
+    const handleNotesMouseMove = (e) => {
+      if (!isDraggingNotes) return;
+      setFloatingNotesPos({
+        x: e.clientX - dragNotesStartRef.current.x,
+        y: e.clientY - dragNotesStartRef.current.y
+      });
+    };
+
+    const handleNotesMouseUp = () => {
+      setIsDraggingNotes(false);
+    };
+
+    if (isDraggingNotes) {
+      document.addEventListener('mousemove', handleNotesMouseMove);
+      document.addEventListener('mouseup', handleNotesMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleNotesMouseMove);
+      document.removeEventListener('mouseup', handleNotesMouseUp);
+    };
+  }, [isDraggingNotes, floatingNotesPos]);
 
   // Load floating notes from localStorage when open or mounting
   useEffect(() => {
@@ -1911,9 +1956,15 @@ const Dashboard = () => {
       )}
       {/* Floating Quick Notes */}
       {isFloatingNotesOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[480px] bg-white/90 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div 
+          style={{ transform: `translate(${floatingNotesPos.x}px, ${floatingNotesPos.y}px)` }}
+          className="fixed bottom-6 right-6 w-96 h-[480px] bg-white/90 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-200"
+        >
           {/* Header */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/20">
+          <div 
+            onMouseDown={handleNotesMouseDown}
+            className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/20 cursor-grab active:cursor-grabbing select-none"
+          >
             <div className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary-500" />
               <span className="font-bold text-sm">Quick Notes</span>
