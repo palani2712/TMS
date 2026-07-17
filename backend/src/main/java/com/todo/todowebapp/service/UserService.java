@@ -77,6 +77,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public static void validatePassword(String password) {
         if (password == null || password.trim().length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters.");
