@@ -744,10 +744,10 @@ const Dashboard = () => {
         
         <div className="flex items-center gap-3">
           {/* View Toggle */}
-          <div className="flex items-center bg-[#92c4e9] dark:bg-[var(--color-button-secondary-bg)] p-1 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-inner h-[46px]">
+          <div className="flex items-center bg-[#92c4e9] dark:bg-[var(--color-button-secondary-bg)] p-1 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-inner h-[40px]">
             <button
               onClick={() => setViewMode('list')}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all h-full ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all h-full ${
                 viewMode === 'list'
                   ? 'bg-primary-600 text-white shadow-sm'
                   : 'text-[var(--color-button-secondary-text)] hover:opacity-90'
@@ -758,7 +758,7 @@ const Dashboard = () => {
             </button>
             <button
               onClick={() => setViewMode('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all h-full ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all h-full ${
                 viewMode === 'calendar'
                   ? 'bg-primary-600 text-white shadow-sm'
                   : 'text-[var(--color-button-secondary-text)] hover:opacity-90'
@@ -771,7 +771,7 @@ const Dashboard = () => {
 
           <button
             onClick={() => setIsFloatingNotesOpen(!isFloatingNotesOpen)}
-            className={`p-2.5 rounded-xl font-medium text-sm transition-all border flex items-center justify-center h-[46px] w-[46px] shrink-0 ${
+            className={`p-2.5 rounded-xl font-medium text-sm transition-all border flex items-center justify-center h-[40px] w-[40px] shrink-0 ${
               isFloatingNotesOpen
                 ? 'bg-primary-600 border-primary-600 text-white shadow-md'
                 : 'bg-[var(--color-button-secondary-bg)] border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] hover:opacity-90'
@@ -788,7 +788,7 @@ const Dashboard = () => {
                 setAssignmentFilter('ALL');
                 setCurrentPage(1);
               }}
-              className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all border ${
+              className={`px-4 py-2 rounded-xl font-medium text-sm transition-all border ${
                 assignmentFilter === 'ALL'
                   ? 'bg-primary-600 border-primary-600 text-white shadow-md hover:bg-primary-700 hover:border-primary-700'
                   : 'bg-[var(--color-button-secondary-bg)] border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] hover:opacity-90'
@@ -804,7 +804,7 @@ const Dashboard = () => {
                   setAssignmentFilter('ALL');
                   setCurrentPage(1);
                 }}
-                className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all border ${
+                className={`px-4 py-2 rounded-xl font-medium text-sm transition-all border ${
                   assignmentFilter === 'ALL'
                     ? 'bg-primary-600 border-primary-600 text-white shadow-md hover:bg-primary-700 hover:border-primary-700'
                     : 'bg-[var(--color-button-secondary-bg)] border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] hover:opacity-90'
@@ -817,7 +817,7 @@ const Dashboard = () => {
                   setAssignmentFilter('ASSIGNED_TO_OTHERS');
                   setCurrentPage(1);
                 }}
-                className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all border ${
+                className={`px-4 py-2 rounded-xl font-medium text-sm transition-all border ${
                   assignmentFilter === 'ASSIGNED_TO_OTHERS'
                     ? 'bg-primary-600 border-primary-600 text-white shadow-md hover:bg-primary-700 hover:border-primary-700'
                     : 'bg-[var(--color-button-secondary-bg)] border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] hover:opacity-90'
@@ -830,7 +830,7 @@ const Dashboard = () => {
                   setAssignmentFilter('SELF_ASSIGNED');
                   setCurrentPage(1);
                 }}
-                className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all border ${
+                className={`px-4 py-2 rounded-xl font-medium text-sm transition-all border ${
                   assignmentFilter === 'SELF_ASSIGNED'
                     ? 'bg-primary-600 border-primary-600 text-white shadow-md hover:bg-primary-700 hover:border-primary-700'
                     : 'bg-[var(--color-button-secondary-bg)] border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] hover:opacity-90'
@@ -845,7 +845,7 @@ const Dashboard = () => {
           <div className="relative">
             <button 
               onClick={() => setIsExportOpen(!isExportOpen)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--color-button-secondary-border)] hover:opacity-90 font-medium text-sm transition-all text-[var(--color-button-secondary-text)] bg-[var(--color-button-secondary-bg)]"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-button-secondary-border)] hover:opacity-90 font-medium text-sm transition-all text-[var(--color-button-secondary-text)] bg-[var(--color-button-secondary-bg)]"
             >
               <FileText className="w-4 h-4" />
               <span>Export Report</span>
@@ -870,7 +870,7 @@ const Dashboard = () => {
 
           <button 
             onClick={openCreateModal}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--color-button-secondary-border)] hover:opacity-90 font-medium text-sm transition-all text-[var(--color-button-secondary-text)] bg-[var(--color-button-secondary-bg)] shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--color-button-secondary-border)] hover:opacity-90 font-medium text-sm transition-all text-[var(--color-button-secondary-text)] bg-[var(--color-button-secondary-bg)] shadow-md hover:shadow-lg"
           >
             <Plus className="w-4 h-4" />
             <span>{user?.role === 'ROLE_EMPLOYEE' ? 'Add Task' : 'Assign Task'}</span>
