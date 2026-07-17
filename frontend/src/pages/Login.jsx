@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { CheckSquare, Lock, Mail, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { CheckSquare, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
+import API from '../services/api';
 
 const Login = () => {
   const { login, forgotPassword, user } = useAuth();
@@ -10,32 +11,81 @@ const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Forgot Password States
   const [isForgotOpen, setIsForgotOpen] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotUsername, setForgotUsername] = useState('');
   const [isForgotSubmitting, setIsForgotSubmitting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncUsers = async () => {
+    setIsSyncing(true);
+    // Import auth from firebase
+    const { auth } = await import('../config/firebase');
+    const { createUserWithEmailAndPassword, signOut } = await import('firebase/auth');
+    
+    const usersToSync = [
+      { email: "generalmanager@careerschool.in", password: "generalmanager123" },
+      { email: "careerschoolhr2@gmail.com", password: "Krishna123" },
+      { email: "careerschoolhr14@gmail.com", password: "Ganesh123" },
+      { email: "careerschoolhr8@gmail.com", password: "Sandhya123" }
+    ];
+
+    let successCount = 0;
+    let alreadyExistsCount = 0;
+    let failCount = 0;
+
+    for (const u of usersToSync) {
+      try {
+        await createUserWithEmailAndPassword(auth, u.email, u.password);
+        await signOut(auth);
+        successCount++;
+      } catch (err) {
+        if (err.code === 'auth/email-already-in-use') {
+          alreadyExistsCount++;
+        } else {
+          console.error("Failed to sync", u.email, err);
+          failCount++;
+        }
+      }
+    }
+
+    if (failCount > 0) {
+      showToast(`Sync completed with errors: ${successCount} new, ${alreadyExistsCount} already exist, ${failCount} failed.`, 'warning');
+    } else {
+      showToast(`Successfully synced database users to Firebase! (${successCount} new, ${alreadyExistsCount} existing)`, 'success');
+    }
+    setIsSyncing(false);
+  };
 
   const handleRequestResetEmail = async (e) => {
     e.preventDefault();
-    if (!forgotEmail.trim()) {
-      showToast('Please enter your email address.', 'error');
+    if (!forgotUsername.trim()) {
+      showToast('Please enter your username.', 'error');
       return;
     }
     setIsForgotSubmitting(true);
-    const result = await forgotPassword(forgotEmail.trim());
-    setIsForgotSubmitting(false);
+    try {
+      // Look up email by username
+      const emailRes = await API.get(`/auth/email-by-username?username=${encodeURIComponent(forgotUsername.trim())}`);
+      const email = emailRes.data;
 
-    if (result.success) {
-      showToast('Password reset email sent successfully!', 'success');
-      setIsForgotOpen(false);
-      setForgotEmail('');
-    } else {
-      showToast(result.message || 'Failed to send reset email.', 'error');
+      const result = await forgotPassword(email);
+      if (result.success) {
+        showToast('Password reset email sent successfully!', 'success');
+        setIsForgotOpen(false);
+        setForgotUsername('');
+      } else {
+        showToast(result.message || 'Failed to send reset email.', 'error');
+      }
+    } catch (err) {
+      showToast(err.response?.status === 404 ? 'Username not found.' : 'Failed to look up email address.', 'error');
+    } finally {
+      setIsForgotSubmitting(false);
     }
   };
 
@@ -43,10 +93,10 @@ const Login = () => {
   useEffect(() => {
     // Read the last logged-in user from sessionStorage to identify their stored theme choice if available
     const savedUserStr = sessionStorage.getItem('user');
-    let username = '';
+    let savedUsername = '';
     if (savedUserStr) {
       try {
-        username = JSON.parse(savedUserStr).username;
+        savedUsername = JSON.parse(savedUserStr).username;
       } catch (e) {}
     }
 
@@ -142,20 +192,28 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
+    if (!username.trim() || !password.trim()) {
       showToast('Please fill out all fields.', 'error');
       return;
     }
 
     setIsSubmitting(true);
-    const result = await login(email, password);
-    setIsSubmitting(false);
+    try {
+      // Look up email by username
+      const emailRes = await API.get(`/auth/email-by-username?username=${encodeURIComponent(username.trim())}`);
+      const email = emailRes.data;
 
-    if (result.success) {
-      showToast('Signed in successfully!', 'success');
-      navigate('/');
-    } else {
-      showToast(result.message || 'Login failed', 'error');
+      const result = await login(email, password);
+      if (result.success) {
+        showToast('Signed in successfully!', 'success');
+        navigate('/');
+      } else {
+        showToast(result.message || 'Login failed', 'error');
+      }
+    } catch (err) {
+      showToast(err.response?.status === 404 ? 'Username not found.' : 'Invalid credentials.', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -176,21 +234,21 @@ const Login = () => {
           </p>
 
           <form onSubmit={handleSubmit} className="w-full space-y-6">
-            {/* Email Input */}
+            {/* Username Input */}
             <div>
-              <label className="block text-slate-300 text-sm font-semibold mb-2" htmlFor="email">
-                Email Address
+              <label className="block text-slate-300 text-sm font-semibold mb-2" htmlFor="username">
+                Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-5 h-5" />
+                  <User className="w-5 h-5" />
                 </div>
                 <input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
                   required
                 />
@@ -253,6 +311,18 @@ const Login = () => {
             </button>
           </div>
 
+          {/* Developer database user syncing */}
+          <div className="text-center mt-4 w-full border-t border-white/10 pt-4">
+            <button
+              type="button"
+              onClick={handleSyncUsers}
+              disabled={isSyncing}
+              className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              {isSyncing ? 'Syncing Users...' : '⚡ Sync Users to Firebase'}
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -273,15 +343,15 @@ const Login = () => {
 
             <form onSubmit={handleRequestResetEmail} className="space-y-4 text-left w-full">
               <p className="text-xs text-slate-300 leading-relaxed">
-                Enter your registered Email Address. We will send a password reset link to your email to verify your identity.
+                Enter your Username. We will send a password reset link to your registered email to verify your identity.
               </p>
               <div>
-                <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">Email Address</label>
+                <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">Username</label>
                 <input
-                  type="email"
-                  placeholder="name@company.com"
-                  value={forgotEmail}
-                  onChange={(e) => setForgotEmail(e.target.value)}
+                  type="text"
+                  placeholder="Enter your username"
+                  value={forgotUsername}
+                  onChange={(e) => setForgotUsername(e.target.value)}
                   className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
                   required
                 />

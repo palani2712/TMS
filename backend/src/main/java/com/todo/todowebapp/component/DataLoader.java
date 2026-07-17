@@ -42,6 +42,13 @@ public class DataLoader implements CommandLineRunner {
             userService.updateUser(u, "generalmanager", "generalmanager123", "SYSTEM");
         });
 
+        userRepository.findByUsername("generalmanager").ifPresent(u -> {
+            if (u.getEmail() == null || u.getEmail().trim().isEmpty()) {
+                u.setEmail("generalmanager@careerschool.in");
+                userRepository.save(u);
+            }
+        });
+
         // Seed Users
         if (userRepository.count() == 0) {
             User admin = new User("generalmanager", "generalmanager123", Role.ROLE_ADMIN);
