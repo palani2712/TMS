@@ -201,8 +201,8 @@ const Sidebar = () => {
       <aside className={`fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 w-64 lg:static lg:flex flex-col glass dark:bg-slate-900/90 border-r h-full max-h-screen text-[var(--color-text-main)]`}>
         {/* Sidebar Header */}
         <div className="p-6 border-b border-slate-400 dark:border-slate-700/80 flex items-center justify-between gap-4">
-          <div className="flex items-center h-12 max-w-[170px] w-full">
-            <img src={darkMode ? '/logo-dark-cs.png' : '/logo-light-cs.png'} alt="CSHR Logo" className="h-12 w-auto object-contain mt-[-8px] mb-[-8px]" />
+          <div className="flex items-center h-16 max-w-[180px] w-full">
+            <img src={darkMode ? '/logo-dark-cs.png' : '/logo-light-cs.png'} alt="CSHR Logo" className="h-16 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-2">
             <button 
