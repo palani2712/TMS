@@ -23,6 +23,7 @@ public class FirebaseConfig {
         } catch (Exception e) {
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseOptions options = FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.create(new com.google.auth.oauth2.AccessToken("mock-token", new java.util.Date(Long.MAX_VALUE))))
                         .setProjectId("todowebapp-b8e27")
                         .build();
                 FirebaseApp.initializeApp(options);
