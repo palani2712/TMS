@@ -80,6 +80,85 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
+  // Floating Notes State
+  const [isFloatingNotesOpen, setIsFloatingNotesOpen] = useState(false);
+  const [floatingNotesTabs, setFloatingNotesTabs] = useState([]);
+  const [floatingActiveTabId, setFloatingActiveTabId] = useState('');
+  const [floatingEditingTabId, setFloatingEditingTabId] = useState('');
+  const [floatingEditName, setFloatingEditName] = useState('');
+
+  // Load floating notes from localStorage when open or mounting
+  useEffect(() => {
+    if (user && isFloatingNotesOpen) {
+      const saved = localStorage.getItem(`user-notes-tabs-${user.username}`);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.length > 0) {
+            setFloatingNotesTabs(parsed);
+            if (!floatingActiveTabId || !parsed.some(t => t.id === floatingActiveTabId)) {
+              setFloatingActiveTabId(parsed[0].id);
+            }
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to parse saved notes tabs", e);
+        }
+      }
+      
+      const defaultTabs = [{ id: 'default-' + Date.now(), name: 'General', content: '' }];
+      setFloatingNotesTabs(defaultTabs);
+      setFloatingActiveTabId(defaultTabs[0].id);
+      localStorage.setItem(`user-notes-tabs-${user.username}`, JSON.stringify(defaultTabs));
+    }
+  }, [user, isFloatingNotesOpen]);
+
+  const handleAddFloatingTab = () => {
+    const newTabId = 'tab-' + Date.now();
+    const newTabNumber = floatingNotesTabs.length + 1;
+    const newTab = {
+      id: newTabId,
+      name: `Note ${newTabNumber}`,
+      content: ''
+    };
+    const updated = [...floatingNotesTabs, newTab];
+    setFloatingNotesTabs(updated);
+    setFloatingActiveTabId(newTabId);
+    localStorage.setItem(`user-notes-tabs-${user.username}`, JSON.stringify(updated));
+  };
+
+  const handleDeleteFloatingTab = (e, tabIdToDelete) => {
+    e.stopPropagation();
+    if (floatingNotesTabs.length === 1) {
+      alert("You must keep at least one note tab.");
+      return;
+    }
+    if (window.confirm("Are you sure you want to delete this tab? This cannot be undone.")) {
+      const updated = floatingNotesTabs.filter(t => t.id !== tabIdToDelete);
+      setFloatingNotesTabs(updated);
+      if (floatingActiveTabId === tabIdToDelete) {
+        setFloatingActiveTabId(updated[0].id);
+      }
+      localStorage.setItem(`user-notes-tabs-${user.username}`, JSON.stringify(updated));
+    }
+  };
+
+  const handleSaveFloatingRename = () => {
+    if (!floatingEditName.trim()) {
+      setFloatingEditingTabId('');
+      return;
+    }
+    const updated = floatingNotesTabs.map(t => {
+      if (t.id === floatingEditingTabId) {
+        return { ...t, name: floatingEditName.trim() };
+      }
+      return t;
+    });
+    setFloatingNotesTabs(updated);
+    setFloatingEditingTabId('');
+    localStorage.setItem(`user-notes-tabs-${user.username}`, JSON.stringify(updated));
+  };
+
   const fetchNotifications = async () => {
     try {
       const res = await API.get('/notifications');
@@ -608,6 +687,18 @@ const Dashboard = () => {
               <span>Calendar</span>
             </button>
           </div>
+
+          <button
+            onClick={() => setIsFloatingNotesOpen(!isFloatingNotesOpen)}
+            className={`p-2.5 rounded-xl font-medium text-sm transition-all border flex items-center justify-center h-[46px] w-[46px] shrink-0 ${
+              isFloatingNotesOpen
+                ? 'bg-primary-600 border-primary-600 text-white shadow-md'
+                : 'bg-[var(--color-button-secondary-bg)] border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] hover:opacity-90'
+            }`}
+            title="Floating Notes"
+          >
+            <FileText className="w-5 h-5" />
+          </button>
 
           {/* Assignment Filters */}
           {user?.role === 'ROLE_EMPLOYEE' && (
@@ -1815,6 +1906,115 @@ const Dashboard = () => {
                 <span>Assign Task</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Floating Quick Notes */}
+      {isFloatingNotesOpen && (
+        <div className="fixed bottom-6 right-6 w-96 h-[480px] bg-white/90 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          {/* Header */}
+          <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/20">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary-500" />
+              <span className="font-bold text-sm">Quick Notes</span>
+            </div>
+            <button
+              onClick={() => setIsFloatingNotesOpen(false)}
+              className="p-1 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Tabs Container */}
+          <div className="flex items-center gap-1.5 p-3 border-b border-slate-100 dark:border-slate-800/80 overflow-x-auto scrollbar-none bg-slate-50/20 dark:bg-slate-950/10 animate-none">
+            {floatingNotesTabs.map((tab) => {
+              const isActive = tab.id === floatingActiveTabId;
+              const isEditing = tab.id === floatingEditingTabId;
+              
+              return (
+                <div
+                  key={tab.id}
+                  onClick={() => !isEditing && setFloatingActiveTabId(tab.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer select-none h-8 shrink-0 ${
+                    isActive
+                      ? 'bg-[var(--color-sidebar-item-active-bg)] text-[var(--color-sidebar-item-active-text)] border-[var(--color-border-main)] shadow-sm'
+                      : 'bg-white/50 dark:bg-slate-950/25 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800/80 hover:bg-slate-100/50 dark:hover:bg-slate-900/30'
+                  }`}
+                >
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={floatingEditName}
+                      onChange={(e) => setFloatingEditName(e.target.value)}
+                      onBlur={handleSaveFloatingRename}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveFloatingRename();
+                        if (e.key === 'Escape') setFloatingEditingTabId('');
+                      }}
+                      autoFocus
+                      className="bg-transparent border-none outline-none focus:ring-0 text-slate-850 dark:text-slate-100 w-16 py-0 px-0 text-xs font-semibold"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-1.5" onDoubleClick={() => {
+                      setFloatingEditingTabId(tab.id);
+                      setFloatingEditName(tab.name);
+                    }}>
+                      <span className="truncate max-w-[80px]" title="Double click to rename">{tab.name}</span>
+                      
+                      {isActive && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFloatingEditingTabId(tab.id);
+                            setFloatingEditName(tab.name);
+                          }}
+                          className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 opacity-60 hover:opacity-100 transition-opacity"
+                        >
+                          <Edit3 className="w-2.5 h-2.5" />
+                        </button>
+                      )}
+                      
+                      {floatingNotesTabs.length > 1 && (
+                        <button
+                          onClick={(e) => handleDeleteFloatingTab(e, tab.id)}
+                          className="p-0.5 rounded hover:bg-rose-100 dark:hover:bg-rose-950/40 text-slate-400 hover:text-rose-600 transition-colors"
+                        >
+                          <X className="w-2.5 h-2.5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Add Tab Button */}
+            <button
+              onClick={handleAddFloatingTab}
+              className="flex items-center justify-center p-1 rounded-lg border border-dashed border-slate-300 dark:border-slate-800 text-slate-500 hover:text-primary-600 hover:border-primary-500 hover:bg-primary-50/20 dark:hover:bg-primary-950/10 transition-all h-8 w-8 shrink-0 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Text Area Content */}
+          <div className="flex-1 p-4 flex flex-col bg-transparent">
+            <textarea
+              value={floatingNotesTabs.find(t => t.id === floatingActiveTabId)?.content || ''}
+              onChange={(e) => {
+                const updated = floatingNotesTabs.map(t => {
+                  if (t.id === floatingActiveTabId) {
+                    return { ...t, content: e.target.value };
+                  }
+                  return t;
+                });
+                setFloatingNotesTabs(updated);
+                localStorage.setItem(`user-notes-tabs-${user.username}`, JSON.stringify(updated));
+              }}
+              placeholder="Start typing your quick notes here..."
+              className="flex-1 w-full bg-transparent resize-none border-none outline-none focus:ring-0 text-slate-800 dark:text-slate-100 text-sm leading-relaxed placeholder:text-slate-450 dark:placeholder:text-slate-500"
+            />
           </div>
         </div>
       )}
