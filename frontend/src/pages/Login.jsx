@@ -219,7 +219,7 @@ const Login = () => {
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
 
       {/* Login Card */}
-      <div className="w-full max-w-md mx-4 z-10">
+      <div className="w-full max-w-sm mx-4 z-10">
         <div className="bg-[#363636] backdrop-blur-xl rounded-3xl pt-2 pb-6 px-6 shadow-2xl border border-white/10 text-white flex flex-col items-center">
           
           <img src="/logo-cs.png" alt="Career School HR Solutions" className="w-72 h-auto object-contain mb-[-32px] mt-[-32px]" />
