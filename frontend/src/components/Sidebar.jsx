@@ -200,87 +200,89 @@ const Sidebar = () => {
       {/* Sidebar shell */}
       <aside className={`fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 w-64 lg:static lg:flex flex-col glass dark:bg-slate-900/90 border-r h-full max-h-screen text-[var(--color-text-main)]`}>
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-slate-400 dark:border-slate-700/80 flex items-center justify-between gap-4">
-          <div className="flex items-center h-16 max-w-[180px]">
-            <img src={darkMode ? '/logo-dark-cs.png' : '/logo-light-cs.png'} alt="CSHR Logo" className="h-16 w-auto object-contain" />
+        <div className="p-6 border-b border-slate-400 dark:border-slate-700/80 flex flex-col gap-4">
+          <div className="flex items-center h-12 w-full">
+            <img src={darkMode ? '/logo-dark-cs.png' : '/logo-light-cs.png'} alt="CSHR Logo" className="h-12 w-auto object-contain object-left" />
           </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={toggleTheme}
-              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              title="Toggle theme"
-            >
-              {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-500" />}
-            </button>
-            {/* Notification Bell Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative"
-                title="Notifications"
+          <div className="flex items-center justify-between w-full mt-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Workspace</span>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={toggleTheme}
+                className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                title="Toggle theme"
               >
-                <Bell className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-                {notifications.filter(n => !n.read).length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
-                    {notifications.filter(n => !n.read).length}
-                  </span>
-                )}
+                {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-500" />}
               </button>
-
-              {isNotificationOpen && (
-                <div className="absolute left-0 mt-3 w-80 glass rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden text-slate-800 dark:text-slate-100">
-                  <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                    <span className="font-bold text-sm text-[var(--color-text-main)]">Notifications</span>
-                    <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                      {notifications.filter(n => !n.read).length} Unread
+              {/* Notification Bell Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                  className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors relative"
+                  title="Notifications"
+                >
+                  <Bell className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                      {notifications.filter(n => !n.read).length}
                     </span>
-                  </div>
-                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
-                    {notifications.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-slate-400 dark:text-slate-500 italic">
-                        No notifications
-                      </div>
-                    ) : (
-                      notifications.map(notif => (
-                        <div
-                          key={notif.id}
-                          className={`p-3.5 transition-colors flex items-start gap-2.5 text-left group ${
-                            notif.read
-                              ? 'opacity-60'
-                              : 'hover:bg-slate-100/50 dark:hover:bg-slate-800/40'
-                          }`}
-                        >
-                          {/* Unread dot */}
-                          <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${notif.read ? 'bg-slate-300 dark:bg-slate-600' : 'bg-primary-500'}`} />
+                  )}
+                </button>
 
-                          {/* Message body — clickable to navigate */}
-                          <div
-                            className="flex-1 space-y-0.5 cursor-pointer"
-                            onClick={() => handleNotificationClick(notif)}
-                          >
-                            <p className={`text-xs leading-normal ${notif.read ? 'font-medium text-slate-500 dark:text-slate-400' : 'font-semibold text-[var(--color-text-main)]'}`}>
-                              {notif.message}
-                            </p>
-                            <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
-                              {new Date(notif.createdDate).toLocaleString()}
-                            </span>
-                          </div>
-
-                          {/* Clear button */}
-                          <button
-                            onClick={(e) => handleClearNotification(e, notif.id)}
-                            title="Clear notification"
-                            className="opacity-0 group-hover:opacity-100 ml-1 mt-0.5 shrink-0 p-1 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-950/40 text-slate-400 hover:text-rose-500 transition-all duration-150"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
+                {isNotificationOpen && (
+                  <div className="absolute left-0 mt-3 w-80 glass rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden text-slate-800 dark:text-slate-100">
+                    <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                      <span className="font-bold text-sm text-[var(--color-text-main)]">Notifications</span>
+                      <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                        {notifications.filter(n => !n.read).length} Unread
+                      </span>
+                    </div>
+                    <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                      {notifications.length === 0 ? (
+                        <div className="p-6 text-center text-xs text-slate-400 dark:text-slate-500 italic">
+                          No notifications
                         </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
+                      ) : (
+                        notifications.map(notif => (
+                          <div
+                            key={notif.id}
+                            className={`p-3.5 transition-colors flex items-start gap-2.5 text-left group ${
+                              notif.read
+                                ? 'opacity-60'
+                                : 'hover:bg-slate-100/50 dark:hover:bg-slate-800/40'
+                            }`}
+                          >
+                            {/* Unread dot */}
+                            <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${notif.read ? 'bg-slate-300 dark:bg-slate-600' : 'bg-primary-500'}`} />
 
+                            {/* Message body — clickable to navigate */}
+                            <div
+                              className="flex-1 space-y-0.5 cursor-pointer"
+                              onClick={() => handleNotificationClick(notif)}
+                            >
+                              <p className={`text-xs leading-normal ${notif.read ? 'font-medium text-slate-500 dark:text-slate-400' : 'font-semibold text-[var(--color-text-main)]'}`}>
+                                {notif.message}
+                              </p>
+                              <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
+                                {new Date(notif.createdDate).toLocaleString()}
+                              </span>
+                            </div>
+
+                            {/* Clear button */}
+                            <button
+                              onClick={(e) => handleClearNotification(e, notif.id)}
+                              title="Clear notification"
+                              className="opacity-0 group-hover:opacity-100 ml-1 mt-0.5 shrink-0 p-1 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-950/40 text-slate-400 hover:text-rose-500 transition-all duration-150"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
