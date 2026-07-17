@@ -4,6 +4,7 @@ com\todo\todowebapp\repository\NotificationRepository.class
 com\todo\todowebapp\repository\UserRepository.class
 com\todo\todowebapp\service\TaskService.class
 com\todo\todowebapp\config\JwtTokenProvider.class
+com\todo\todowebapp\config\FirebaseAuthenticationFilter.class
 com\todo\todowebapp\controller\AuditLogController.class
 com\todo\todowebapp\model\Priority.class
 com\todo\todowebapp\model\Status.class
@@ -11,6 +12,7 @@ com\todo\todowebapp\service\NotificationService.class
 com\todo\todowebapp\service\EmailService.class
 com\todo\todowebapp\model\Task.class
 com\todo\todowebapp\controller\AuthController$OtpRequest.class
+com\todo\todowebapp\config\FirebaseConfig.class
 com\todo\todowebapp\config\JwtAuthenticationFilter.class
 com\todo\todowebapp\component\DataLoader.class
 com\todo\todowebapp\model\Comment.class
