@@ -32,8 +32,8 @@ public class SecurityConfig {
     private UserService userService;
 
     @Bean
-    public JwtAuthenticationFilter authenticationJwtTokenFilter() {
-        return new JwtAuthenticationFilter();
+    public FirebaseAuthenticationFilter authenticationFirebaseTokenFilter() {
+        return new FirebaseAuthenticationFilter();
     }
 
     @Bean
@@ -72,7 +72,7 @@ public class SecurityConfig {
         http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 
         http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationFirebaseTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
