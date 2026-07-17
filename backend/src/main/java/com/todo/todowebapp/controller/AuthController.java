@@ -107,6 +107,13 @@ public class AuthController {
         return ResponseEntity.ok("OK");
     }
 
+    @GetMapping("/email-by-username")
+    public ResponseEntity<?> getEmailByUsername(@RequestParam String username) {
+        return userService.findByUsername(username)
+                .map(user -> ResponseEntity.ok(user.getEmail()))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     public static class OtpRequest {
         private String username;
         private String email;
