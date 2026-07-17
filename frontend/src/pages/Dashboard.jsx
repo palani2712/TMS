@@ -88,16 +88,46 @@ const Dashboard = () => {
   const [floatingEditName, setFloatingEditName] = useState('');
 
   // Draggable Notes Position State
+  const modalRef = useRef(null);
   const [floatingNotesPos, setFloatingNotesPos] = useState({ x: 0, y: 0 });
   const [isDraggingNotes, setIsDraggingNotes] = useState(false);
   const dragNotesStartRef = useRef({ x: 0, y: 0 });
+
+  // Initialize position to bottom right of screen on first open
+  useEffect(() => {
+    if (isFloatingNotesOpen) {
+      if (floatingNotesPos.x === 0 && floatingNotesPos.y === 0) {
+        setFloatingNotesPos({
+          x: window.innerWidth - 384 - 24,
+          y: window.innerHeight - 480 - 24
+        });
+      }
+    }
+  }, [isFloatingNotesOpen]);
+
+  // Keep modal inside browser boundaries on window resize
+  useEffect(() => {
+    const handleWindowResize = () => {
+      if (!isFloatingNotesOpen) return;
+      setFloatingNotesPos(prev => {
+        const rect = modalRef.current ? modalRef.current.getBoundingClientRect() : { width: 384, height: 480 };
+        return {
+          x: Math.max(0, Math.min(prev.x, window.innerWidth - rect.width)),
+          y: Math.max(0, Math.min(prev.y, window.innerHeight - rect.height))
+        };
+      });
+    };
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, [isFloatingNotesOpen]);
 
   const handleNotesMouseDown = (e) => {
     if (e.button !== 0) return;
     if (
       e.target.closest('button') || 
       e.target.closest('input') || 
-      e.target.closest('textarea')
+      e.target.closest('textarea') ||
+      e.target.closest('.resize-handle') // avoid dragging when resizing
     ) {
       return;
     }
@@ -111,10 +141,15 @@ const Dashboard = () => {
   useEffect(() => {
     const handleNotesMouseMove = (e) => {
       if (!isDraggingNotes) return;
-      setFloatingNotesPos({
-        x: e.clientX - dragNotesStartRef.current.x,
-        y: e.clientY - dragNotesStartRef.current.y
-      });
+      const rect = modalRef.current ? modalRef.current.getBoundingClientRect() : { width: 384, height: 480 };
+      
+      let newX = e.clientX - dragNotesStartRef.current.x;
+      newX = Math.max(0, Math.min(newX, window.innerWidth - rect.width));
+
+      let newY = e.clientY - dragNotesStartRef.current.y;
+      newY = Math.max(0, Math.min(newY, window.innerHeight - rect.height));
+
+      setFloatingNotesPos({ x: newX, y: newY });
     };
 
     const handleNotesMouseUp = () => {
@@ -130,7 +165,7 @@ const Dashboard = () => {
       document.removeEventListener('mousemove', handleNotesMouseMove);
       document.removeEventListener('mouseup', handleNotesMouseUp);
     };
-  }, [isDraggingNotes, floatingNotesPos]);
+  }, [isDraggingNotes]);
 
   // Load floating notes from localStorage when open or mounting
   useEffect(() => {
@@ -1957,8 +1992,12 @@ const Dashboard = () => {
       {/* Floating Quick Notes */}
       {isFloatingNotesOpen && (
         <div 
-          style={{ transform: `translate(${floatingNotesPos.x}px, ${floatingNotesPos.y}px)` }}
-          className="fixed bottom-6 right-6 w-96 h-[480px] bg-white/90 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-200"
+          ref={modalRef}
+          style={{ 
+            left: `${floatingNotesPos.x}px`, 
+            top: `${floatingNotesPos.y}px` 
+          }}
+          className="fixed w-96 h-[480px] bg-white/90 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 flex flex-col overflow-hidden text-slate-800 dark:text-slate-100 animate-in fade-in duration-200 resize min-w-[280px] min-h-[300px] max-w-[90vw] max-h-[90vh]"
         >
           {/* Header */}
           <div 
