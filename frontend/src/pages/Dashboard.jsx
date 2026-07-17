@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -1990,7 +1991,7 @@ const Dashboard = () => {
         </div>
       )}
       {/* Floating Quick Notes */}
-      {isFloatingNotesOpen && (
+      {isFloatingNotesOpen && createPortal(
         <div 
           ref={modalRef}
           style={{ 
@@ -2106,7 +2107,8 @@ const Dashboard = () => {
               className="flex-1 w-full bg-transparent resize-none border-none outline-none focus:ring-0 text-slate-800 dark:text-slate-100 text-sm leading-relaxed placeholder:text-slate-450 dark:placeholder:text-slate-500"
             />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
