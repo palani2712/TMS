@@ -41,8 +41,14 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
                     // Find user in local database by email
                     User user = userService.findByEmail(email).orElse(null);
                     if (user != null) {
+                        org.springframework.security.core.userdetails.UserDetails userDetails = 
+                                new org.springframework.security.core.userdetails.User(
+                                        user.getUsername(),
+                                        user.getPassword(),
+                                        Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()))
+                                );
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                user, null, Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
+                                userDetails, null, userDetails.getAuthorities());
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
