@@ -256,7 +256,7 @@ public class UserService implements UserDetailsService {
                 com.google.firebase.auth.FirebaseAuth.getInstance().createUser(createRequest);
             }
         } catch (Exception e) {
-            System.err.println("Error syncing user to Firebase: " + e.getMessage());
+            throw new RuntimeException("Failed to sync user to Firebase: " + e.getMessage(), e);
         }
     }
 
@@ -265,7 +265,7 @@ public class UserService implements UserDetailsService {
             com.google.firebase.auth.UserRecord userRecord = com.google.firebase.auth.FirebaseAuth.getInstance().getUserByEmail(email);
             com.google.firebase.auth.FirebaseAuth.getInstance().deleteUser(userRecord.getUid());
         } catch (Exception e) {
-            System.err.println("Error deleting user from Firebase: " + e.getMessage());
+            throw new RuntimeException("Failed to delete user from Firebase: " + e.getMessage(), e);
         }
     }
 }
