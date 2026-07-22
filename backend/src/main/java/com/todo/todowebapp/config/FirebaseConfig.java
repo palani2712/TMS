@@ -15,9 +15,36 @@ public class FirebaseConfig {
     public void initialize() {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.getApplicationDefault())
-                        .build();
+                FirebaseOptions options = null;
+
+                // 1. Try loading from classpath resource
+                try (java.io.InputStream serviceAccountStream = getClass().getClassLoader().getResourceAsStream("firebase-service-account.json")) {
+                    if (serviceAccountStream != null) {
+                        options = FirebaseOptions.builder()
+                                .setCredentials(GoogleCredentials.fromStream(serviceAccountStream))
+                                .build();
+                    }
+                } catch (Exception e) {
+                    // Ignore and try next method
+                }
+
+                // 2. Try loading from environment variable
+                if (options == null) {
+                    String serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON");
+                    if (serviceAccountJson != null && !serviceAccountJson.trim().isEmpty()) {
+                        options = FirebaseOptions.builder()
+                                .setCredentials(GoogleCredentials.fromStream(new java.io.ByteArrayInputStream(serviceAccountJson.getBytes())))
+                                .build();
+                    }
+                }
+
+                // 3. Fallback to application default credentials
+                if (options == null) {
+                    options = FirebaseOptions.builder()
+                            .setCredentials(GoogleCredentials.getApplicationDefault())
+                            .build();
+                }
+
                 FirebaseApp.initializeApp(options);
             }
         } catch (Exception e) {
