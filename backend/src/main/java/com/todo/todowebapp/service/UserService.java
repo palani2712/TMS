@@ -265,7 +265,7 @@ public class UserService implements UserDetailsService {
             com.google.firebase.auth.UserRecord userRecord = com.google.firebase.auth.FirebaseAuth.getInstance().getUserByEmail(email);
             com.google.firebase.auth.FirebaseAuth.getInstance().deleteUser(userRecord.getUid());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to delete user from Firebase: " + e.getMessage(), e);
+            System.err.println("Warning: Could not delete user from Firebase (this is normal if credentials are not configured or user does not exist in Firebase): " + e.getMessage());
         }
     }
 }
