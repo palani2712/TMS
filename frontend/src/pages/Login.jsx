@@ -20,47 +20,6 @@ const Login = () => {
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const [forgotUsername, setForgotUsername] = useState('');
   const [isForgotSubmitting, setIsForgotSubmitting] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-
-  const handleSyncUsers = async () => {
-    setIsSyncing(true);
-    // Import auth from firebase
-    const { auth } = await import('../config/firebase');
-    const { createUserWithEmailAndPassword, signOut } = await import('firebase/auth');
-    
-    const usersToSync = [
-      { email: "generalmanager@careerschool.in", password: "generalmanager123" },
-      { email: "careerschoolhr2@gmail.com", password: "Krishna123" },
-      { email: "careerschoolhr14@gmail.com", password: "Ganesh123" },
-      { email: "careerschoolhr8@gmail.com", password: "Sandhya123" }
-    ];
-
-    let successCount = 0;
-    let alreadyExistsCount = 0;
-    let failCount = 0;
-
-    for (const u of usersToSync) {
-      try {
-        await createUserWithEmailAndPassword(auth, u.email, u.password);
-        await signOut(auth);
-        successCount++;
-      } catch (err) {
-        if (err.code === 'auth/email-already-in-use') {
-          alreadyExistsCount++;
-        } else {
-          console.error("Failed to sync", u.email, err);
-          failCount++;
-        }
-      }
-    }
-
-    if (failCount > 0) {
-      showToast(`Sync completed with errors: ${successCount} new, ${alreadyExistsCount} already exist, ${failCount} failed.`, 'warning');
-    } else {
-      showToast(`Successfully synced database users to Firebase! (${successCount} new, ${alreadyExistsCount} existing)`, 'success');
-    }
-    setIsSyncing(false);
-  };
 
   const handleRequestResetEmail = async (e) => {
     e.preventDefault();
@@ -308,18 +267,6 @@ const Login = () => {
               className="text-xs text-sky-400 hover:text-sky-300 font-semibold transition-colors cursor-pointer"
             >
               Forgot Password?
-            </button>
-          </div>
-
-          {/* Developer database user syncing */}
-          <div className="text-center mt-4 w-full border-t border-white/10 pt-4">
-            <button
-              type="button"
-              onClick={handleSyncUsers}
-              disabled={isSyncing}
-              className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              {isSyncing ? 'Syncing Users...' : '⚡ Sync Users to Firebase'}
             </button>
           </div>
 
