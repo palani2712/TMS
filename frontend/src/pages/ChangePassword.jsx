@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import API from '../services/api';
+import API, { getErrorMessage } from '../services/api';
 import { Lock, Eye, EyeOff, ShieldAlert, KeyRound } from 'lucide-react';
 
 const ChangePassword = () => {
@@ -44,7 +44,7 @@ const ChangePassword = () => {
       setPassword('');
       confirmPassword('');
     } catch (err) {
-      showToast(err.response?.data || 'Failed to update password.', 'error');
+      showToast(getErrorMessage(err, 'Failed to update password.'), 'error');
     } finally {
       setIsSubmitting(false);
     }
