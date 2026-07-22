@@ -68,6 +68,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User updateUserProfile(User user, String modifierUsername) {
         User saved = userRepository.save(user);
+        syncUserToFirebase(saved.getEmail(), null, saved.getFullName());
         auditLogService.log("UPDATE_PROFILE", modifierUsername, 
                 "Updated profile details for: " + saved.getUsername());
         return saved;
@@ -98,11 +99,14 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("Username is already taken!");
         }
+        String plainPassword = user.getPassword();
         if (!"SYSTEM".equals(creatorUsername)) {
-            validatePassword(user.getPassword());
+            validatePassword(plainPassword);
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(plainPassword));
         User savedUser = userRepository.save(user);
+
+        syncUserToFirebase(savedUser.getEmail(), plainPassword, savedUser.getFullName());
 
         auditLogService.log("CREATE_USER", creatorUsername, 
                 "Created user: " + savedUser.getUsername() + " with role: " + savedUser.getRole());
@@ -134,6 +138,9 @@ public class UserService implements UserDetailsService {
             existingUser.setPassword(passwordEncoder.encode(newPassword));
             existingUser.setPasswordResetAllowed(false);
             existingUser.setPasswordResetGrantedAt(null);
+
+            syncUserToFirebase(existingUser.getEmail(), newPassword, existingUser.getFullName());
+
             auditLogService.log("UPDATE_PASSWORD", modifierUsername, 
                     "Updated password for: " + existingUser.getUsername());
         }
@@ -145,6 +152,8 @@ public class UserService implements UserDetailsService {
     public void deleteUser(Long id, String modifierUsername) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        deleteUserFromFirebase(user.getEmail());
 
         // 1. Block deletion of manager if they have employees assigned under them
         if (user.getRole() == com.todo.todowebapp.model.Role.ROLE_MANAGER) {
@@ -212,5 +221,51 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
         auditLogService.log("PERMISSION_CHANGE", modifierUsername, 
                 (allowed ? "Granted" : "Revoked") + " password reset permission for user: " + user.getUsername());
+    }
+
+    private void syncUserToFirebase(String email, String password, String displayName) {
+        try {
+            com.google.firebase.auth.UserRecord userRecord;
+            try {
+                userRecord = com.google.firebase.auth.FirebaseAuth.getInstance().getUserByEmail(email);
+                if (password != null && !password.trim().isEmpty()) {
+                    com.google.firebase.auth.UserRecord.UpdateRequest updateRequest = 
+                            new com.google.firebase.auth.UserRecord.UpdateRequest(userRecord.getUid())
+                                    .setPassword(password);
+                    if (displayName != null) {
+                        updateRequest.setDisplayName(displayName);
+                    }
+                    com.google.firebase.auth.FirebaseAuth.getInstance().updateUser(updateRequest);
+                } else if (displayName != null) {
+                    com.google.firebase.auth.UserRecord.UpdateRequest updateRequest = 
+                            new com.google.firebase.auth.UserRecord.UpdateRequest(userRecord.getUid())
+                                    .setDisplayName(displayName);
+                    com.google.firebase.auth.FirebaseAuth.getInstance().updateUser(updateRequest);
+                }
+            } catch (com.google.firebase.auth.FirebaseAuthException e) {
+                com.google.firebase.auth.UserRecord.CreateRequest createRequest = 
+                        new com.google.firebase.auth.UserRecord.CreateRequest()
+                                .setEmail(email)
+                                .setEmailVerified(true);
+                if (password != null && !password.trim().isEmpty()) {
+                    createRequest.setPassword(password);
+                }
+                if (displayName != null) {
+                    createRequest.setDisplayName(displayName);
+                }
+                com.google.firebase.auth.FirebaseAuth.getInstance().createUser(createRequest);
+            }
+        } catch (Exception e) {
+            System.err.println("Error syncing user to Firebase: " + e.getMessage());
+        }
+    }
+
+    private void deleteUserFromFirebase(String email) {
+        try {
+            com.google.firebase.auth.UserRecord userRecord = com.google.firebase.auth.FirebaseAuth.getInstance().getUserByEmail(email);
+            com.google.firebase.auth.FirebaseAuth.getInstance().deleteUser(userRecord.getUid());
+        } catch (Exception e) {
+            System.err.println("Error deleting user from Firebase: " + e.getMessage());
+        }
     }
 }
