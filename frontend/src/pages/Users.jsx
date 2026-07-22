@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import API from '../services/api';
+import API, { getErrorMessage } from '../services/api';
 import { 
   UserPlus, 
   Search, 
@@ -166,7 +166,7 @@ const Users = () => {
       setIsModalOpen(false);
       fetchUsers();
     } catch (err) {
-      showToast(err.response?.data || 'Failed to save user.', 'error');
+      showToast(getErrorMessage(err, 'Failed to save user.'), 'error');
     }
   };
 
@@ -177,7 +177,7 @@ const Users = () => {
       showToast('User account deleted.', 'success');
       fetchUsers();
     } catch (err) {
-      showToast(err.response?.data || 'Failed to delete user.', 'error');
+      showToast(getErrorMessage(err, 'Failed to delete user.'), 'error');
     }
   };
 
@@ -231,7 +231,7 @@ const Users = () => {
       showToast(`Password updated successfully for ${passwordForm.username}.`, 'success');
       setIsChangePasswordModalOpen(false);
     } catch (err) {
-      showToast(err.response?.data || 'Failed to update password.', 'error');
+      showToast(getErrorMessage(err, 'Failed to update password.'), 'error');
     }
   };
 

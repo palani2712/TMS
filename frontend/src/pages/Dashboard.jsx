@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import API from '../services/api';
+import API, { getErrorMessage } from '../services/api';
 import { 
   Plus, 
   Search, 
@@ -435,7 +435,7 @@ const Dashboard = () => {
       setIsCreateModalOpen(false);
       fetchData();
     } catch (err) {
-      showToast(err.response?.data || 'Failed to save task.', 'error');
+      showToast(getErrorMessage(err, 'Failed to save task.'), 'error');
     }
   };
 
@@ -462,7 +462,7 @@ const Dashboard = () => {
       setSelectedTask(res.data);
       fetchData();
     } catch (err) {
-      showToast(err.response?.data || 'Failed to submit hold request.', 'error');
+      showToast(getErrorMessage(err, 'Failed to submit hold request.'), 'error');
     }
   };
 
@@ -473,7 +473,7 @@ const Dashboard = () => {
       setSelectedTask(res.data);
       fetchData();
     } catch (err) {
-      showToast(err.response?.data || 'Failed to respond to hold request.', 'error');
+      showToast(getErrorMessage(err, 'Failed to respond to hold request.'), 'error');
     }
   };
 
@@ -517,7 +517,7 @@ const Dashboard = () => {
       setIsDetailsModalOpen(false);
       fetchData();
     } catch (err) {
-      showToast(err.response?.data || 'Failed to delete task.', 'error');
+      showToast(getErrorMessage(err, 'Failed to delete task.'), 'error');
     }
   };
 

@@ -37,4 +37,12 @@ API.interceptors.response.use(
   }
 );
 
+export const getErrorMessage = (err, defaultMsg = 'Something went wrong') => {
+  if (!err) return defaultMsg;
+  const data = err.response?.data;
+  if (!data) return err.message || defaultMsg;
+  if (typeof data === 'string') return data;
+  return data.message || data.error || defaultMsg;
+};
+
 export default API;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import API from '../services/api';
+import API, { getErrorMessage } from '../services/api';
 import { Save, Palette, Check, User, Mail, Phone, Settings as SettingsIcon, Lock, Eye, EyeOff, KeyRound } from 'lucide-react';
 
 // Predefined themes
@@ -110,7 +110,7 @@ const Settings = () => {
       setNewPassword('');
       setConfirmPassword('');
     } catch (err) {
-      showToast(err.response?.data || 'Failed to update password.', 'error');
+      showToast(getErrorMessage(err, 'Failed to update password.'), 'error');
     } finally {
       setIsChangingPassword(false);
     }
@@ -215,7 +215,7 @@ const Settings = () => {
       });
       showToast('Profile updated successfully.', 'success');
     } catch (err) {
-      showToast(err.response?.data || 'Failed to update profile.', 'error');
+      showToast(getErrorMessage(err, 'Failed to update profile.'), 'error');
     } finally {
       setIsSaving(false);
     }
