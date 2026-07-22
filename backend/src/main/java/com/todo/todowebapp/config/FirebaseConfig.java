@@ -32,8 +32,10 @@ public class FirebaseConfig {
                 if (options == null) {
                     String serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON");
                     if (serviceAccountJson != null && !serviceAccountJson.trim().isEmpty()) {
+                        // Replace literal "\\n" with actual newlines to support environment variable parsing
+                        String sanitizedJson = serviceAccountJson.replace("\\n", "\n");
                         options = FirebaseOptions.builder()
-                                .setCredentials(GoogleCredentials.fromStream(new java.io.ByteArrayInputStream(serviceAccountJson.getBytes())))
+                                .setCredentials(GoogleCredentials.fromStream(new java.io.ByteArrayInputStream(sanitizedJson.getBytes())))
                                 .build();
                     }
                 }
