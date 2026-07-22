@@ -10,6 +10,7 @@ import java.sql.Statement;
 public class DumpDataTest {
 
     @Test
+    @org.junit.jupiter.api.Disabled
     public void dumpAivenData() throws Exception {
         String url = "jdbc:mysql://mysql-1af9c421-palaniappan2712-5763.a.aivencloud.com:18283/defaultdb?ssl-mode=REQUIRED";
         String username = "avnadmin";
