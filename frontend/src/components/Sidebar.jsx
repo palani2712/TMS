@@ -207,7 +207,7 @@ const Sidebar = () => {
           <div className="flex items-center gap-2">
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-full bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors"
+              className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-[var(--color-border-main)] dark:border-slate-700 shadow-sm transition-colors"
               title="Toggle theme"
             >
               {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-500" />}
@@ -216,7 +216,7 @@ const Sidebar = () => {
             <div className="relative">
               <button
                 onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className="p-2 rounded-full bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors relative"
+                className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-[var(--color-border-main)] dark:border-slate-700 shadow-sm transition-colors relative"
                 title="Notifications"
               >
                 <Bell className="w-5 h-5 text-slate-500 dark:text-slate-400" />
