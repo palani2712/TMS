@@ -51,4 +51,29 @@ public class DumpDataTest {
             }
         }
     }
+
+    @Test
+    public void testFirebaseConnection() throws Exception {
+        System.out.println("=== TESTING FIREBASE CONNECTION ===");
+        org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource("firebase-service-account.json");
+        if (!resource.exists()) {
+            throw new RuntimeException("firebase-service-account.json does not exist on classpath!");
+        }
+        com.google.auth.oauth2.GoogleCredentials credentials = com.google.auth.oauth2.GoogleCredentials.fromStream(resource.getInputStream());
+        System.out.println("Loaded credentials successfully! Project ID: " + ((com.google.auth.oauth2.ServiceAccountCredentials) credentials).getProjectId());
+        
+        com.google.firebase.FirebaseOptions options = com.google.firebase.FirebaseOptions.builder()
+                .setCredentials(credentials)
+                .build();
+        if (com.google.firebase.FirebaseApp.getApps().isEmpty()) {
+            com.google.firebase.FirebaseApp.initializeApp(options);
+        }
+        
+        try {
+            com.google.firebase.auth.FirebaseAuth.getInstance().getUserByEmail("test@example.com");
+            System.out.println("Firebase Auth communication succeeded!");
+        } catch (com.google.firebase.auth.FirebaseAuthException e) {
+            System.out.println("Firebase Auth returned exception: " + e.getMessage() + ", ErrorCode: " + e.getAuthErrorCode());
+        }
+    }
 }
