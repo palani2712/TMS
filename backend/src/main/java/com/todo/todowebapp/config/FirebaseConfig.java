@@ -17,6 +17,18 @@ public class FirebaseConfig {
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseOptions options = null;
 
+                // 1. Try loading from classpath resource
+                try {
+                    org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource("firebase-service-account.json");
+                    if (resource.exists()) {
+                        options = FirebaseOptions.builder()
+                                .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
+                                .build();
+                    }
+                } catch (Exception e) {
+                    System.err.println("Info: Could not load firebase-service-account.json from classpath: " + e.getMessage());
+                }
+
                 // 2. Try loading from environment variable
                 if (options == null) {
                     String serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON");
