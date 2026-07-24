@@ -225,24 +225,34 @@ public class UserService implements UserDetailsService {
 
     private void syncUserToFirebase(String email, String password, String displayName) {
         try {
-            com.google.firebase.auth.UserRecord userRecord;
+            com.google.firebase.auth.UserRecord userRecord = null;
+            boolean exists = true;
             try {
                 userRecord = com.google.firebase.auth.FirebaseAuth.getInstance().getUserByEmail(email);
+            } catch (com.google.firebase.auth.FirebaseAuthException e) {
+                if (e.getAuthErrorCode() == com.google.firebase.auth.AuthErrorCode.USER_NOT_FOUND) {
+                    exists = false;
+                } else {
+                    throw e;
+                }
+            }
+
+            if (exists) {
+                com.google.firebase.auth.UserRecord.UpdateRequest updateRequest = 
+                        new com.google.firebase.auth.UserRecord.UpdateRequest(userRecord.getUid());
+                boolean hasUpdates = false;
                 if (password != null && !password.trim().isEmpty()) {
-                    com.google.firebase.auth.UserRecord.UpdateRequest updateRequest = 
-                            new com.google.firebase.auth.UserRecord.UpdateRequest(userRecord.getUid())
-                                    .setPassword(password);
-                    if (displayName != null) {
-                        updateRequest.setDisplayName(displayName);
-                    }
-                    com.google.firebase.auth.FirebaseAuth.getInstance().updateUser(updateRequest);
-                } else if (displayName != null) {
-                    com.google.firebase.auth.UserRecord.UpdateRequest updateRequest = 
-                            new com.google.firebase.auth.UserRecord.UpdateRequest(userRecord.getUid())
-                                    .setDisplayName(displayName);
+                    updateRequest.setPassword(password);
+                    hasUpdates = true;
+                }
+                if (displayName != null) {
+                    updateRequest.setDisplayName(displayName);
+                    hasUpdates = true;
+                }
+                if (hasUpdates) {
                     com.google.firebase.auth.FirebaseAuth.getInstance().updateUser(updateRequest);
                 }
-            } catch (com.google.firebase.auth.FirebaseAuthException e) {
+            } else {
                 com.google.firebase.auth.UserRecord.CreateRequest createRequest = 
                         new com.google.firebase.auth.UserRecord.CreateRequest()
                                 .setEmail(email)
