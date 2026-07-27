@@ -175,9 +175,6 @@ const Sidebar = () => {
       { name: 'Users Directory', path: '/users', icon: Users },
       { name: 'Task Tracking', path: '/task-tracking', icon: ClipboardList }
     ] : []),
-    ...(user?.role === 'ROLE_EMPLOYEE' ? [
-      { name: 'Change Password', path: '/change-password', icon: Key }
-    ] : []),
     { name: 'Notes', path: '/notes', icon: FileText },
     { name: 'Settings', path: '/settings', icon: SettingsIcon }
   ];
