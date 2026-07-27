@@ -18,24 +18,61 @@ public class FirebaseConfig {
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseOptions options = null;
 
-                // 1. Try loading from classpath resource
+                // 1. Try loading from path specified in environment variable FIREBASE_CREDENTIALS_PATH
                 try {
-                    org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource("firebase-service-account.json");
-                    if (resource.exists()) {
-                        System.out.println("FirebaseConfig: Found firebase-service-account.json in classpath resources.");
-                        options = FirebaseOptions.builder()
-                                .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
-                                .build();
-                        System.out.println("FirebaseConfig: Successfully loaded credentials from classpath resource.");
-                    } else {
-                        System.out.println("FirebaseConfig: firebase-service-account.json NOT found on classpath.");
+                    String credentialsPath = System.getenv("FIREBASE_CREDENTIALS_PATH");
+                    if (credentialsPath != null && !credentialsPath.trim().isEmpty()) {
+                        java.io.File file = new java.io.File(credentialsPath);
+                        if (file.exists()) {
+                            System.out.println("FirebaseConfig: Found credentials file at path: " + credentialsPath);
+                            options = FirebaseOptions.builder()
+                                    .setCredentials(GoogleCredentials.fromStream(new java.io.FileInputStream(file)))
+                                    .build();
+                            System.out.println("FirebaseConfig: Successfully loaded credentials from specified path.");
+                        } else {
+                            System.out.println("FirebaseConfig: File specified in FIREBASE_CREDENTIALS_PATH does not exist: " + credentialsPath);
+                        }
                     }
                 } catch (Exception e) {
-                    System.err.println("FirebaseConfig Error: Could not load firebase-service-account.json from classpath: " + e.getMessage());
-                    e.printStackTrace();
+                    System.err.println("FirebaseConfig Error: Could not load credentials from FIREBASE_CREDENTIALS_PATH: " + e.getMessage());
                 }
 
-                // 2. Try loading from environment variable
+                // 2. Try loading from default Render secrets path (/etc/secrets/firebase-service-account.json)
+                if (options == null) {
+                    try {
+                        java.io.File renderSecretFile = new java.io.File("/etc/secrets/firebase-service-account.json");
+                        if (renderSecretFile.exists()) {
+                            System.out.println("FirebaseConfig: Found credentials file at default Render secrets path.");
+                            options = FirebaseOptions.builder()
+                                    .setCredentials(GoogleCredentials.fromStream(new java.io.FileInputStream(renderSecretFile)))
+                                    .build();
+                            System.out.println("FirebaseConfig: Successfully loaded credentials from default Render secrets path.");
+                        }
+                    } catch (Exception e) {
+                        System.err.println("FirebaseConfig Error: Could not load credentials from Render secrets file: " + e.getMessage());
+                    }
+                }
+
+                // 3. Try loading from classpath resource
+                if (options == null) {
+                    try {
+                        org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource("firebase-service-account.json");
+                        if (resource.exists()) {
+                            System.out.println("FirebaseConfig: Found firebase-service-account.json in classpath resources.");
+                            options = FirebaseOptions.builder()
+                                    .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
+                                    .build();
+                            System.out.println("FirebaseConfig: Successfully loaded credentials from classpath resource.");
+                        } else {
+                            System.out.println("FirebaseConfig: firebase-service-account.json NOT found on classpath.");
+                        }
+                    } catch (Exception e) {
+                        System.err.println("FirebaseConfig Error: Could not load firebase-service-account.json from classpath: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+
+                // 4. Try loading from environment variable
                 if (options == null) {
                     System.out.println("FirebaseConfig: Attempting to load from environment variable FIREBASE_SERVICE_ACCOUNT_JSON...");
                     String serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON");
