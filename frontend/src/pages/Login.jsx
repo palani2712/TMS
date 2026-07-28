@@ -184,18 +184,18 @@ const Login = () => {
 
       {/* Login Card */}
       <div className="w-full max-w-sm mx-4 z-10">
-        <div className="bg-[#363636] backdrop-blur-xl rounded-3xl pt-2 pb-6 px-6 shadow-2xl border border-white/10 text-white flex flex-col items-center">
+        <div className="bg-[#FFFFFF] backdrop-blur-xl rounded-3xl pt-2 pb-6 px-6 shadow-2xl border border-slate-200 text-slate-800 flex flex-col items-center">
           
           <img src="/logo-cs.png" alt="Career School HR Solutions" className="w-72 h-auto object-contain mb-[-32px] mt-[-32px]" />
-          <h1 className="text-2xl font-bold tracking-tight mb-1 text-white">Welcome Back</h1>
-          <p className="text-slate-400 text-sm mb-8 text-center font-medium">
+          <h1 className="text-2xl font-bold tracking-tight mb-1 text-slate-900">Welcome Back</h1>
+          <p className="text-slate-500 text-sm mb-8 text-center font-medium">
             Sign in to access your dashboard
           </p>
-
+ 
           <form onSubmit={handleSubmit} className="w-full space-y-6">
             {/* Username Input */}
             <div>
-              <label className="block text-slate-300 text-sm font-semibold mb-2" htmlFor="username">
+              <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="username">
                 Username
               </label>
               <div className="relative">
@@ -208,15 +208,15 @@ const Login = () => {
                   placeholder="Enter your username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
                   required
                 />
               </div>
             </div>
-
+ 
             {/* Password Input */}
             <div>
-              <label className="block text-slate-300 text-sm font-semibold mb-2" htmlFor="password">
+              <label className="block text-slate-700 text-sm font-semibold mb-2" htmlFor="password">
                 Password
               </label>
               <div className="relative">
@@ -229,19 +229,19 @@ const Login = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
+                  className="w-full pl-10 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
-
+ 
             {/* Login button */}
             <button
               type="submit"
@@ -258,18 +258,18 @@ const Login = () => {
               )}
             </button>
           </form>
-
+ 
           {/* Forgot Password Link */}
           <div className="text-center mt-5 w-full">
             <button
               type="button"
               onClick={() => { setIsForgotOpen(true); }}
-              className="text-xs text-sky-400 hover:text-sky-300 font-semibold transition-colors cursor-pointer"
+              className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors cursor-pointer"
             >
               Forgot Password?
             </button>
           </div>
-
+ 
         </div>
       </div>
 
