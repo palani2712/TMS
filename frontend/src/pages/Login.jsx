@@ -6,7 +6,11 @@ import { CheckSquare, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import API from '../services/api';
 
 const Login = () => {
+<<<<<<< HEAD
   const { login, forgotPassword, verifyResetOtp, user } = useAuth();
+=======
+  const { login, forgotPassword, user } = useAuth();
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -19,12 +23,18 @@ const Login = () => {
   // Forgot Password States
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const [forgotUsername, setForgotUsername] = useState('');
+<<<<<<< HEAD
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isForgotSubmitting, setIsForgotSubmitting] = useState(false);
 
   const handleRequestResetOtp = async (e) => {
+=======
+  const [isForgotSubmitting, setIsForgotSubmitting] = useState(false);
+
+  const handleRequestResetEmail = async (e) => {
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
     e.preventDefault();
     if (!forgotUsername.trim()) {
       showToast('Please enter your username.', 'error');
@@ -32,6 +42,7 @@ const Login = () => {
     }
     setIsForgotSubmitting(true);
     try {
+<<<<<<< HEAD
       const result = await forgotPassword(forgotUsername.trim());
       if (result.success) {
         showToast('If the username is valid and registered with password reset permissions, an OTP has been sent.', 'success');
@@ -67,6 +78,22 @@ const Login = () => {
       }
     } catch (err) {
       showToast('Failed to reset password.', 'error');
+=======
+      // Look up email by username
+      const emailRes = await API.get(`/auth/email-by-username?username=${encodeURIComponent(forgotUsername.trim())}`);
+      const email = emailRes.data;
+
+      const result = await forgotPassword(email);
+      if (result.success) {
+        showToast('Password reset email sent successfully!', 'success');
+        setIsForgotOpen(false);
+        setForgotUsername('');
+      } else {
+        showToast(result.message || 'Failed to send reset email.', 'error');
+      }
+    } catch (err) {
+      showToast(err.response?.status === 404 ? 'Username not found.' : 'Failed to look up email address.', 'error');
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
     } finally {
       setIsForgotSubmitting(false);
     }
@@ -184,7 +211,15 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
+<<<<<<< HEAD
       const result = await login(username.trim(), password);
+=======
+      // Look up email by username
+      const emailRes = await API.get(`/auth/email-by-username?username=${encodeURIComponent(username.trim())}`);
+      const email = emailRes.data;
+
+      const result = await login(email, password);
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
       if (result.success) {
         showToast('Signed in successfully!', 'success');
         navigate('/');
@@ -192,7 +227,11 @@ const Login = () => {
         showToast(result.message || 'Login failed', 'error');
       }
     } catch (err) {
+<<<<<<< HEAD
       showToast('Invalid credentials.', 'error');
+=======
+      showToast(err.response?.status === 404 ? 'Username not found.' : 'Invalid credentials.', 'error');
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
     } finally {
       setIsSubmitting(false);
     }
@@ -303,13 +342,18 @@ const Login = () => {
             <div className="border-b border-white/10 pb-3 flex items-center justify-between">
               <h2 className="text-xl font-bold">Reset Password</h2>
               <button
+<<<<<<< HEAD
                 onClick={() => { setIsForgotOpen(false); setOtpSent(false); }}
+=======
+                onClick={() => { setIsForgotOpen(false); }}
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
                 className="text-slate-400 hover:text-white font-bold text-sm"
               >
                 ✕
               </button>
             </div>
 
+<<<<<<< HEAD
             {!otpSent ? (
               <form onSubmit={handleRequestResetOtp} className="space-y-4 text-left w-full">
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -397,6 +441,40 @@ const Login = () => {
                 </div>
               </form>
             )}
+=======
+            <form onSubmit={handleRequestResetEmail} className="space-y-4 text-left w-full">
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Enter your Username. We will send a password reset link to your registered email to verify your identity.
+              </p>
+              <div>
+                <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">Username</label>
+                <input
+                  type="text"
+                  placeholder="Enter your username"
+                  value={forgotUsername}
+                  onChange={(e) => setForgotUsername(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
+                  required
+                />
+              </div>
+              <div className="pt-2 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotOpen(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isForgotSubmitting}
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-xl text-xs font-semibold cursor-pointer"
+                >
+                  {isForgotSubmitting ? 'Sending...' : 'Send Reset Link'}
+                </button>
+              </div>
+            </form>
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
           </div>
         </div>
       )}

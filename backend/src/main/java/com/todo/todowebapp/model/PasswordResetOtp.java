@@ -20,12 +20,15 @@ public class PasswordResetOtp {
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
 
+<<<<<<< HEAD
     @Column(name = "attempts", nullable = false)
     private int attempts = 0;
 
     @Column(name = "last_requested_at")
     private LocalDateTime lastRequestedAt;
 
+=======
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
     public PasswordResetOtp() {
     }
 
@@ -33,8 +36,11 @@ public class PasswordResetOtp {
         this.username = username;
         this.otpCode = otpCode;
         this.expiryDate = expiryDate;
+<<<<<<< HEAD
         this.attempts = 0;
         this.lastRequestedAt = LocalDateTime.now();
+=======
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
     }
 
     public Long getId() {
@@ -69,6 +75,7 @@ public class PasswordResetOtp {
         this.expiryDate = expiryDate;
     }
 
+<<<<<<< HEAD
     public int getAttempts() {
         return attempts;
     }
@@ -85,6 +92,8 @@ public class PasswordResetOtp {
         this.lastRequestedAt = lastRequestedAt;
     }
 
+=======
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiryDate);
     }

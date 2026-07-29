@@ -37,11 +37,14 @@ public class SecurityConfig {
     }
 
     @Bean
+<<<<<<< HEAD
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter();
     }
 
     @Bean
+=======
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userService);
@@ -77,7 +80,10 @@ public class SecurityConfig {
         http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 
         http.authenticationProvider(authenticationProvider());
+<<<<<<< HEAD
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+=======
+>>>>>>> 6427241b789b24d9ecc4d2508386e405aeb4a925
         http.addFilterBefore(authenticationFirebaseTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
