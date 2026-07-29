@@ -67,6 +67,8 @@ const Login = () => {
       '--color-bg-card': 'rgba(24, 24, 27, 0.85)',
       '--color-text-main': '#f8fafc',
       '--color-border-main': 'rgba(255, 255, 255, 0.15)',
+      '--color-autofill-bg': '#f8fafc',
+      '--color-autofill-text': '#0f172a',
     };
     Object.entries(darkVars).forEach(([varName, value]) => {
       document.documentElement.style.setProperty(varName, value);
