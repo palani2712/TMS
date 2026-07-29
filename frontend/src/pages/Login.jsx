@@ -6,7 +6,7 @@ import { CheckSquare, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import API from '../services/api';
 
 const Login = () => {
-  const { login, forgotPassword, user } = useAuth();
+  const { login, forgotPassword, verifyResetOtp, user } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -19,9 +19,12 @@ const Login = () => {
   // Forgot Password States
   const [isForgotOpen, setIsForgotOpen] = useState(false);
   const [forgotUsername, setForgotUsername] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [isForgotSubmitting, setIsForgotSubmitting] = useState(false);
 
-  const handleRequestResetEmail = async (e) => {
+  const handleRequestResetOtp = async (e) => {
     e.preventDefault();
     if (!forgotUsername.trim()) {
       showToast('Please enter your username.', 'error');
@@ -29,20 +32,41 @@ const Login = () => {
     }
     setIsForgotSubmitting(true);
     try {
-      // Look up email by username
-      const emailRes = await API.get(`/auth/email-by-username?username=${encodeURIComponent(forgotUsername.trim())}`);
-      const email = emailRes.data;
-
-      const result = await forgotPassword(email);
+      const result = await forgotPassword(forgotUsername.trim());
       if (result.success) {
-        showToast('Password reset email sent successfully!', 'success');
-        setIsForgotOpen(false);
-        setForgotUsername('');
+        showToast('If the username is valid and registered with password reset permissions, an OTP has been sent.', 'success');
+        setOtpSent(true);
       } else {
-        showToast(result.message || 'Failed to send reset email.', 'error');
+        showToast(result.message || 'Failed to request password reset.', 'error');
       }
     } catch (err) {
-      showToast(err.response?.status === 404 ? 'Username not found.' : 'Failed to look up email address.', 'error');
+      showToast('Failed to request password reset.', 'error');
+    } finally {
+      setIsForgotSubmitting(false);
+    }
+  };
+
+  const handleVerifyAndReset = async (e) => {
+    e.preventDefault();
+    if (!otp.trim() || !newPassword.trim()) {
+      showToast('Please enter the OTP and your new password.', 'error');
+      return;
+    }
+    setIsForgotSubmitting(true);
+    try {
+      const result = await verifyResetOtp(forgotUsername.trim(), otp.trim(), newPassword.trim());
+      if (result.success) {
+        showToast('Password reset successfully! You can now log in.', 'success');
+        setIsForgotOpen(false);
+        setForgotUsername('');
+        setOtp('');
+        setNewPassword('');
+        setOtpSent(false);
+      } else {
+        showToast(result.message || 'Failed to reset password.', 'error');
+      }
+    } catch (err) {
+      showToast('Failed to reset password.', 'error');
     } finally {
       setIsForgotSubmitting(false);
     }
@@ -160,11 +184,7 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      // Look up email by username
-      const emailRes = await API.get(`/auth/email-by-username?username=${encodeURIComponent(username.trim())}`);
-      const email = emailRes.data;
-
-      const result = await login(email, password);
+      const result = await login(username.trim(), password);
       if (result.success) {
         showToast('Signed in successfully!', 'success');
         navigate('/');
@@ -172,7 +192,7 @@ const Login = () => {
         showToast(result.message || 'Login failed', 'error');
       }
     } catch (err) {
-      showToast(err.response?.status === 404 ? 'Username not found.' : 'Invalid credentials.', 'error');
+      showToast('Invalid credentials.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -283,45 +303,100 @@ const Login = () => {
             <div className="border-b border-white/10 pb-3 flex items-center justify-between">
               <h2 className="text-xl font-bold">Reset Password</h2>
               <button
-                onClick={() => { setIsForgotOpen(false); }}
+                onClick={() => { setIsForgotOpen(false); setOtpSent(false); }}
                 className="text-slate-400 hover:text-white font-bold text-sm"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleRequestResetEmail} className="space-y-4 text-left w-full">
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Enter your Username. We will send a password reset link to your registered email to verify your identity.
-              </p>
-              <div>
-                <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">Username</label>
-                <input
-                  type="text"
-                  placeholder="Enter your username"
-                  value={forgotUsername}
-                  onChange={(e) => setForgotUsername(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
-                  required
-                />
-              </div>
-              <div className="pt-2 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsForgotOpen(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isForgotSubmitting}
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-xl text-xs font-semibold cursor-pointer"
-                >
-                  {isForgotSubmitting ? 'Sending...' : 'Send Reset Link'}
-                </button>
-              </div>
-            </form>
+            {!otpSent ? (
+              <form onSubmit={handleRequestResetOtp} className="space-y-4 text-left w-full">
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Enter your Username. If you have password reset permissions, we will send an OTP code to your registered email.
+                </p>
+                <div>
+                  <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">Username</label>
+                  <input
+                    type="text"
+                    placeholder="Enter your username"
+                    value={forgotUsername}
+                    onChange={(e) => setForgotUsername(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
+                    required
+                  />
+                </div>
+                <div className="pt-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotOpen(false)}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isForgotSubmitting}
+                    className="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-xl text-xs font-semibold cursor-pointer"
+                  >
+                    {isForgotSubmitting ? 'Sending...' : 'Send OTP'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyAndReset} className="space-y-4 text-left w-full">
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Enter the 6-digit OTP sent to your email and your new password.
+                </p>
+                <div>
+                  <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">Username</label>
+                  <input
+                    type="text"
+                    value={forgotUsername}
+                    disabled
+                    className="w-full px-4 py-2.5 bg-slate-800/40 border border-slate-700 rounded-xl text-slate-400 text-sm font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">OTP Code</label>
+                  <input
+                    type="text"
+                    placeholder="Enter 6-digit OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">New Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
+                    required
+                  />
+                </div>
+                <div className="pt-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => { setOtpSent(false); setOtp(''); setNewPassword(''); }}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold cursor-pointer"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isForgotSubmitting}
+                    className="px-4 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-xl text-xs font-semibold cursor-pointer"
+                  >
+                    {isForgotSubmitting ? 'Resetting...' : 'Reset Password'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

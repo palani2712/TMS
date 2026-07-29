@@ -33,13 +33,21 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtTokenProvider.generateJwtToken(authentication);
 
         User user = userService.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Error: User not found."));
 
+        String firebaseCustomToken;
+        try {
+            com.google.firebase.auth.UserRecord userRecord = 
+                    com.google.firebase.auth.FirebaseAuth.getInstance().getUserByEmail(user.getEmail());
+            firebaseCustomToken = com.google.firebase.auth.FirebaseAuth.getInstance().createCustomToken(userRecord.getUid());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate Firebase credentials.", e);
+        }
+
         return ResponseEntity.ok(new JwtResponse(
-                jwt,
+                firebaseCustomToken,
                 user.getId(),
                 user.getUsername(),
                 user.getRole().name(),
@@ -55,22 +63,28 @@ public class AuthController {
 
     @PostMapping("/forgot-password/request")
     public ResponseEntity<?> requestPasswordResetOtp(@Valid @RequestBody OtpRequest request) {
+        String genericResponse = "If the username is valid and registered with password reset permissions, an OTP has been sent.";
+        
         java.util.Optional<User> userOpt = userService.findByUsername(request.getUsername());
         if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Error: Username not found.");
+            return ResponseEntity.ok(genericResponse);
         }
 
         User user = userOpt.get();
-        if (user.getEmail() == null || !user.getEmail().equalsIgnoreCase(request.getEmail().trim())) {
-            return ResponseEntity.badRequest().body("Error: Email ID does not match the registered email for this username.");
+        if (!user.isPasswordResetAllowed()) {
+            return ResponseEntity.ok(genericResponse);
+        }
+
+        if (otpService.isThrottled(user.getUsername())) {
+            return ResponseEntity.status(429).body("Error: Please wait at least 1 minute between OTP requests.");
         }
 
         try {
             String otpCode = otpService.generateOtp(user.getUsername());
             emailService.sendOtpEmail(user.getEmail(), otpCode);
-            return ResponseEntity.ok("Success: A 6-digit OTP has been sent to your registered email address.");
+            return ResponseEntity.ok(genericResponse);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.ok(genericResponse);
         }
     }
 
@@ -78,10 +92,18 @@ public class AuthController {
     public ResponseEntity<?> verifyOtpAndResetPassword(@Valid @RequestBody OtpVerifyRequest request) {
         java.util.Optional<User> userOpt = userService.findByUsername(request.getUsername());
         if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Error: Username not found.");
+            return ResponseEntity.badRequest().body("Error: Invalid request.");
         }
 
         User user = userOpt.get();
+        if (!user.isPasswordResetAllowed()) {
+            return ResponseEntity.badRequest().body("Error: Password reset not permitted.");
+        }
+
+        if (otpService.isBlocked(user.getUsername())) {
+            return ResponseEntity.status(429).body("Error: Too many verification attempts. Please request a new OTP.");
+        }
+
         boolean isValid = otpService.validateOtp(user.getUsername(), request.getOtp());
         if (!isValid) {
             return ResponseEntity.badRequest().body("Error: Invalid or expired OTP code.");
@@ -107,21 +129,11 @@ public class AuthController {
         return ResponseEntity.ok("OK");
     }
 
-    @GetMapping("/email-by-username")
-    public ResponseEntity<?> getEmailByUsername(@RequestParam String username) {
-        return userService.findByUsername(username)
-                .map(user -> ResponseEntity.ok(user.getEmail()))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     public static class OtpRequest {
         private String username;
-        private String email;
 
         public String getUsername() { return username; }
         public void setUsername(String username) { this.username = username; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
     }
 
     public static class OtpVerifyRequest {

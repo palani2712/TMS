@@ -12,9 +12,9 @@ public class DumpDataTest {
     @Test
     @org.junit.jupiter.api.Disabled
     public void dumpAivenData() throws Exception {
-        String url = "jdbc:mysql://mysql-1af9c421-palaniappan2712-5763.a.aivencloud.com:18283/defaultdb?ssl-mode=REQUIRED";
-        String username = "avnadmin";
-        String password = "rotated_aiven_password";
+        String url = System.getenv("AIVEN_DB_URL") != null ? System.getenv("AIVEN_DB_URL") : "jdbc:mysql://localhost:3306/defaultdb";
+        String username = System.getenv("AIVEN_DB_USER") != null ? System.getenv("AIVEN_DB_USER") : "avnadmin";
+        String password = System.getenv("AIVEN_DB_PASSWORD") != null ? System.getenv("AIVEN_DB_PASSWORD") : "placeholder";
 
         System.out.println("=== CONNECTING TO AIVEN SQL ===");
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
@@ -40,7 +40,12 @@ public class DumpDataTest {
                     while (rs.next()) {
                         rowCount++;
                         for (int i = 1; i <= columnCount; i++) {
-                            System.out.print(rs.getString(i) + "\t");
+                            String colName = metaData.getColumnName(i).toLowerCase();
+                            String val = rs.getString(i);
+                            if (colName.contains("password") || colName.contains("otp") || colName.contains("secret")) {
+                                val = "[REDACTED]";
+                            }
+                            System.out.print(val + "\t");
                         }
                         System.out.println();
                     }
@@ -55,11 +60,14 @@ public class DumpDataTest {
     @Test
     public void testFirebaseConnection() throws Exception {
         System.out.println("=== TESTING FIREBASE CONNECTION ===");
-        org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource("firebase-service-account.json");
-        if (!resource.exists()) {
-            throw new RuntimeException("firebase-service-account.json does not exist on classpath!");
+        java.io.File file = new java.io.File("firebase-service-account.json");
+        if (!file.exists()) {
+            file = new java.io.File("backend/firebase-service-account.json");
         }
-        com.google.auth.oauth2.GoogleCredentials credentials = com.google.auth.oauth2.GoogleCredentials.fromStream(resource.getInputStream());
+        if (!file.exists()) {
+            throw new RuntimeException("firebase-service-account.json does not exist!");
+        }
+        com.google.auth.oauth2.GoogleCredentials credentials = com.google.auth.oauth2.GoogleCredentials.fromStream(new java.io.FileInputStream(file));
         System.out.println("Loaded credentials successfully! Project ID: " + ((com.google.auth.oauth2.ServiceAccountCredentials) credentials).getProjectId());
         
         com.google.firebase.FirebaseOptions options = com.google.firebase.FirebaseOptions.builder()
