@@ -195,7 +195,7 @@ const Sidebar = () => {
       </div>
 
       {/* Sidebar shell */}
-      <aside className={`fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 w-64 lg:static lg:flex flex-col bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-r h-full max-h-screen text-[var(--color-text-main)] border-[var(--color-border-main)]`}>
+      <aside className={`fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out z-40 w-64 lg:static lg:flex flex-col bg-white/80 dark:bg-black backdrop-blur-md border-r h-full max-h-screen text-[var(--color-text-main)] border-[var(--color-border-main)]`}>
         {/* Sidebar Header */}
         <div className="pt-2 pb-2 px-6 border-b border-slate-400 dark:border-slate-700/80 flex items-center justify-between gap-4">
           <div className="flex items-center h-fit max-w-[150px] w-full">
@@ -225,7 +225,7 @@ const Sidebar = () => {
               </button>
 
               {isNotificationOpen && (
-                <div className="absolute left-0 mt-3 w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden text-slate-800 dark:text-slate-100">
+                <div className="absolute left-0 mt-3 w-80 bg-white/95 dark:bg-black/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden text-slate-800 dark:text-slate-100">
                   <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                     <span className="font-bold text-sm text-[var(--color-text-main)]">Notifications</span>
                     <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">

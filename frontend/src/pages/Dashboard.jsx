@@ -742,7 +742,7 @@ const Dashboard = () => {
           <p className="text-slate-500 dark:text-slate-400">Here's an overview of your tasks.</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* View Toggle */}
           <div className="flex items-center bg-[#92c4e9] dark:bg-[var(--color-button-secondary-bg)] p-1 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-inner h-[40px]">
             <button
