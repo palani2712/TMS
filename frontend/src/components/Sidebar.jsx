@@ -109,8 +109,8 @@ const Sidebar = () => {
           500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#0c4a6e', 900: '#082f49'
         },
         themeVars: {
-          '--color-bg-app': '#b3e0ff',
-          '--color-bg-card': 'rgba(255, 255, 255, 0.8)',
+          '--color-bg-app': '#ffffff',
+          '--color-bg-card': 'rgba(179, 224, 255, 0.85)',
           '--color-text-main': '#0c4a6e',
           '--color-border-main': 'rgba(14, 165, 233, 0.4)',
           '--color-chart-completed': '#10b981',
