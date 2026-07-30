@@ -279,29 +279,29 @@ const Login = () => {
       {isForgotOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => { setIsForgotOpen(false); }} />
-          <div className="bg-[#363636] border border-white/10 rounded-3xl w-full max-w-md shadow-2xl relative overflow-hidden text-white p-6 space-y-6">
-            <div className="border-b border-white/10 pb-3 flex items-center justify-between">
-              <h2 className="text-xl font-bold">Reset Password</h2>
+          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md shadow-2xl relative overflow-hidden text-slate-800 p-6 space-y-6">
+            <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Reset Password</h2>
               <button
                 onClick={() => { setIsForgotOpen(false); }}
-                className="text-slate-400 hover:text-white font-bold text-sm"
+                className="text-slate-400 hover:text-slate-600 font-bold text-sm"
               >
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleRequestResetEmail} className="space-y-4 text-left w-full">
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 Enter your Username. We will send a password reset link to your registered email to verify your identity.
               </p>
               <div>
-                <label className="block text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">Username</label>
+                <label className="block text-slate-600 text-xs font-bold uppercase tracking-wider mb-1">Username</label>
                 <input
                   type="text"
                   placeholder="Enter your username"
                   value={forgotUsername}
                   onChange={(e) => setForgotUsername(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
                   required
                 />
               </div>
@@ -309,7 +309,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setIsForgotOpen(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold cursor-pointer"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
