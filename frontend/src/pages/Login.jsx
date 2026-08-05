@@ -262,7 +262,7 @@ const Login = () => {
           </form>
  
           {/* Forgot Password Link */}
-          <div className="text-center mt-5 w-full">
+          <div className="text-center mt-3 w-full">
             <button
               type="button"
               onClick={() => { setIsForgotOpen(true); }}
