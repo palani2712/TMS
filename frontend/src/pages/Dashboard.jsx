@@ -1153,7 +1153,7 @@ const Dashboard = () => {
             <div className="w-10 h-10 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
             <span className="text-slate-500 text-sm font-medium">Fetching assignments...</span>
           </div>
-        ) : filteredTasks.length === 0 ? (
+        ) : (filteredTasks.length === 0 && viewMode === 'list') ? (
           <div className="glass p-12 rounded-3xl text-center shadow-sm">
             <ClipboardList className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <h3 className="font-bold text-lg">No tasks found</h3>
