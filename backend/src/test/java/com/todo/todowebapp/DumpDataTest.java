@@ -76,7 +76,6 @@ public class DumpDataTest {
             System.out.println("Firebase Auth returned exception: " + e.getMessage() + ", ErrorCode: " + e.getAuthErrorCode());
         }
     }
-
     @Test
     @org.junit.jupiter.api.Disabled
     public void migrateData() throws Exception {
@@ -84,8 +83,8 @@ public class DumpDataTest {
         String mysqlUser = "avnadmin";
         String mysqlPass = "AVNS_nXZnrOKJ5FrIA6D5N9n";
 
-        String pgUrl = "jdbc:postgresql://db.vegvztrajlkhljklxpyi.supabase.co:5432/postgres";
-        String pgUser = "postgres";
+        String pgUrl = "jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?prepareThreshold=0";
+        String pgUser = "postgres.vegvztrajlkhljklxpyi";
         String pgPass = "TaskManagementSystem@123";
 
         System.out.println("=== STARTING MIGRATION ===");
