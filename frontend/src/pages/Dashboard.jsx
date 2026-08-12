@@ -1190,11 +1190,16 @@ const Dashboard = () => {
             </div>
 
             {/* Date Range Filter */}
-            <div className="flex items-center gap-1.5 text-xs">
+            <div className="flex items-center gap-1.5 text-xs flex-wrap lg:flex-nowrap">
               <span className="text-slate-500">Date Range:</span>
               <select 
                 value={dateFilterType}
-                onChange={(e) => { setDateFilterType(e.target.value); setCurrentPage(1); }}
+                onChange={(e) => { 
+                  setDateFilterType(e.target.value); 
+                  setStartDate('');
+                  setEndDate('');
+                  setCurrentPage(1); 
+                }}
                 className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold"
               >
                 <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ALL">All Dates</option>
