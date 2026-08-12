@@ -787,31 +787,7 @@ const Dashboard = () => {
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
-          {/* View Toggle */}
-          <div className="flex items-center bg-[#92c4e9] dark:bg-[var(--color-button-secondary-bg)] p-1 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-inner h-[40px]">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all h-full ${
-                viewMode === 'list'
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-[var(--color-button-secondary-text)] hover:opacity-90'
-              }`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              <span>Grid</span>
-            </button>
-            <button
-              onClick={() => setViewMode('calendar')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all h-full ${
-                viewMode === 'calendar'
-                  ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-[var(--color-button-secondary-text)] hover:opacity-90'
-              }`}
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Calendar</span>
-            </button>
-          </div>
+
 
           <button
             onClick={() => setIsFloatingNotesOpen(!isFloatingNotesOpen)}
@@ -1231,15 +1207,14 @@ const Dashboard = () => {
             <div className="w-10 h-10 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
             <span className="text-slate-500 text-sm font-medium">Fetching assignments...</span>
           </div>
-        ) : (filteredTasks.length === 0 && viewMode === 'list') ? (
+        ) : filteredTasks.length === 0 ? (
           <div className="glass p-12 rounded-3xl text-center shadow-sm">
             <ClipboardList className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <h3 className="font-bold text-lg">No tasks found</h3>
             <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto mt-1">Try adjusting your filters or search terms, or assign a new task to your team.</p>
           </div>
         ) : (
-          viewMode === 'list' ? (
-            <div className="space-y-6">
+          <div className="space-y-6">
               {displayMode === 'default' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {paginatedTasks.map((task) => {
@@ -1458,97 +1433,7 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
-          ) : (
-            /* Calendar View */
-            <div className="glass p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800/80 space-y-6 max-w-3xl mx-auto">
-              {/* Calendar Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-                    {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
-                  </h3>
-                  <button
-                    onClick={() => setCurrentDate(new Date())}
-                    className="px-2.5 py-1 text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg transition-colors font-medium ml-2 shadow-sm border border-slate-200 dark:border-slate-700"
-                  >
-                    Today
-                  </button>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => {
-                      const prev = new Date(currentDate);
-                      prev.setMonth(prev.getMonth() - 1);
-                      setCurrentDate(prev);
-                    }}
-                    className="p-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      const next = new Date(currentDate);
-                      next.setMonth(next.getMonth() + 1);
-                      setCurrentDate(next);
-                    }}
-                    className="p-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Days of the Week Header */}
-              <div className="grid grid-cols-7 gap-2 text-center text-xs font-bold uppercase tracking-wider text-slate-400">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="py-2">{day}</div>
-                ))}
-              </div>
-
-              {/* Calendar Days Grid */}
-              <div className="grid grid-cols-7 gap-1.5">
-                {getDaysInMonth(currentDate).map((day, idx) => {
-                  const isToday = isSameDay(day.date, new Date());
-                  const dayTasks = getTasksForDay(day.date);
-                  const hasDeadlines = dayTasks.length > 0;
-                  const allCompleted = hasDeadlines && dayTasks.every(task => task.status === 'COMPLETED');
-                  
-                  return (
-                    <div
-                      key={idx}
-                      onClick={() => handleCalendarDayClick(day.date)}
-                      className={`min-h-[80px] p-1.5 rounded-xl border transition-all flex items-center justify-center cursor-pointer group/cell ${
-                        day.isCurrentMonth
-                          ? hasDeadlines
-                            ? allCompleted
-                              ? 'bg-emerald-100 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-900/30 shadow-sm'
-                              : 'bg-amber-100 dark:bg-amber-950/20 border-amber-300 dark:border-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-900/30 shadow-sm'
-                            : 'bg-white/40 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/60 hover:bg-white/60 dark:hover:bg-slate-900/60'
-                          : 'bg-slate-50/20 dark:bg-slate-950/10 border-transparent text-slate-400 dark:text-slate-600'
-                      } ${
-                        isToday
-                          ? 'ring-2 ring-primary-500 border-transparent bg-primary-50/10 dark:bg-primary-950/10'
-                          : ''
-                      }`}
-                    >
-                      <span className={`text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center ${
-                        isToday 
-                          ? 'bg-primary-500 text-white' 
-                          : hasDeadlines
-                            ? allCompleted
-                              ? 'bg-emerald-500 text-white shadow-sm font-black'
-                              : 'bg-amber-500 text-white shadow-sm font-black'
-                            : 'text-slate-700 dark:text-slate-200'
-                      }`}>
-                        {day.date.getDate()}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           )
-        )
       }</div>
 
       {/* CREATE / EDIT TASK MODAL */}

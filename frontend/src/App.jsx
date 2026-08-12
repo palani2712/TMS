@@ -10,6 +10,7 @@ import TaskTracking from './pages/TaskTracking';
 import ChangePassword from './pages/ChangePassword';
 import Settings from './pages/Settings';
 import Notes from './pages/Notes';
+import Calendar from './pages/Calendar';
 
 const applyThemeColors = (colors, themeVars = null, bgImageUrl = null) => {
   if (!colors) return;
@@ -294,6 +295,7 @@ function App() {
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/notes" element={<Notes />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/calendar" element={<Calendar />} />
               
               {/* Management-only Routes */}
               <Route path="/users" element={

@@ -15,7 +15,8 @@ import {
   Bell,
   ClipboardList,
   Settings as SettingsIcon,
-  FileText
+  FileText,
+  Calendar as CalendarIcon
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -175,6 +176,7 @@ const Sidebar = () => {
       { name: 'Users Directory', path: '/users', icon: Users },
       { name: 'Task Tracking', path: '/task-tracking', icon: ClipboardList }
     ] : []),
+    { name: 'Calendar', path: '/calendar', icon: CalendarIcon },
     { name: 'Notes', path: '/notes', icon: FileText },
     { name: 'Settings', path: '/settings', icon: SettingsIcon }
   ];
