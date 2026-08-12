@@ -26,7 +26,6 @@ const TaskTracking = () => {
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [expandedUsers, setExpandedUsers] = useState({});
   const [userFilters, setUserFilters] = useState({});
-
   const updateUserFilter = (username, key, value) => {
     setUserFilters(prev => ({
       ...prev,
@@ -34,7 +33,7 @@ const TaskTracking = () => {
         ...(prev[username] || {
           statusFilter: 'ALL',
           priorityFilter: 'ALL',
-          dateFilterType: 'ALL',
+          dateFilterType: 'CREATED_DATE',
           startDate: '',
           endDate: ''
         }),
@@ -83,7 +82,7 @@ const TaskTracking = () => {
       case 'IN_PROGRESS': return 'bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-300 border-sky-200 dark:border-sky-900/30';
       case 'PENDING': return 'bg-slate-100 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400 border-slate-200 dark:border-slate-700/30';
       case 'OVERDUE': return 'bg-rose-100 text-rose-800 dark:bg-rose-955/45 dark:text-rose-300 border-rose-200 dark:border-rose-900/30';
-      case 'ON_HOLD': return 'bg-amber-100 text-amber-850 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200 dark:border-amber-900/30';
+      case 'ON_HOLD': return 'bg-amber-100 text-amber-850 dark:bg-amber-955/45 dark:text-amber-300 border-amber-200 dark:border-amber-900/30';
       default: return '';
     }
   };
@@ -284,7 +283,7 @@ const TaskTracking = () => {
                   const userFilter = userFilters[item.username] || {
                     statusFilter: 'ALL',
                     priorityFilter: 'ALL',
-                    dateFilterType: 'ALL',
+                    dateFilterType: 'CREATED_DATE',
                     startDate: '',
                     endDate: ''
                   };
@@ -311,7 +310,7 @@ const TaskTracking = () => {
 
                     // 3. Date Range Filter
                     let matchesDate = true;
-                    if (userFilter.dateFilterType !== 'ALL' && (userFilter.startDate || userFilter.endDate)) {
+                    if (userFilter.startDate || userFilter.endDate) {
                       const dateToCompare = userFilter.dateFilterType === 'CREATED_DATE' ? task.createdDate : task.dueDate;
                       if (!dateToCompare) {
                         matchesDate = false;
@@ -383,40 +382,37 @@ const TaskTracking = () => {
                             }}
                             className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold"
                           >
-                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ALL">All Dates</option>
                             <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="CREATED_DATE">By Creation Date</option>
                             <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="DUE_DATE">By Due Date</option>
                           </select>
 
-                          {userFilter.dateFilterType !== 'ALL' && (
-                            <div className="flex items-center gap-1.5">
-                              <input 
-                                type="date" 
-                                value={userFilter.startDate}
-                                onChange={(e) => updateUserFilter(item.username, 'startDate', e.target.value)}
-                                className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
-                              />
-                              <span className="text-slate-400">to</span>
-                              <input 
-                                type="date" 
-                                value={userFilter.endDate}
-                                onChange={(e) => updateUserFilter(item.username, 'endDate', e.target.value)}
-                                className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
-                              />
-                              {(userFilter.startDate || userFilter.endDate) && (
-                                <button 
-                                  onClick={() => {
-                                    updateUserFilter(item.username, 'startDate', '');
-                                    updateUserFilter(item.username, 'endDate', '');
-                                  }}
-                                  className="p-1 text-slate-400 hover:text-rose-500 transition-colors"
-                                  title="Clear date range"
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </button>
-                              )}
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            <input 
+                              type="date" 
+                              value={userFilter.startDate}
+                              onChange={(e) => updateUserFilter(item.username, 'startDate', e.target.value)}
+                              className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
+                            />
+                            <span className="text-slate-400">to</span>
+                            <input 
+                              type="date" 
+                              value={userFilter.endDate}
+                              onChange={(e) => updateUserFilter(item.username, 'endDate', e.target.value)}
+                              className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
+                            />
+                            {(userFilter.startDate || userFilter.endDate) && (
+                              <button 
+                                onClick={() => {
+                                  updateUserFilter(item.username, 'startDate', '');
+                                  updateUserFilter(item.username, 'endDate', '');
+                                }}
+                                className="p-1 text-slate-400 hover:text-rose-500 transition-colors"
+                                title="Clear date range"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
 
