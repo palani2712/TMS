@@ -1175,19 +1175,7 @@ const Dashboard = () => {
               </select>
             </div>
 
-            {/* Sort By */}
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-slate-500">Sort By:</span>
-              <select 
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold"
-              >
-                <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="dueDate">Due Date</option>
-                <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="priority">Priority weight</option>
-                <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="createdDate">Creation date</option>
-              </select>
-            </div>
+
 
             {/* Date Range Filter */}
             <div className="flex items-center gap-1.5 text-xs flex-wrap lg:flex-nowrap">
