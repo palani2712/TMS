@@ -1127,7 +1127,7 @@ const Dashboard = () => {
           </div>
 
           {/* Selector filters */}
-          <div className="flex flex-wrap items-center justify-end gap-3 w-full lg:w-auto">
+          <div className="flex flex-wrap lg:flex-nowrap items-center justify-end gap-3 w-full lg:w-auto">
             {/* View Select */}
             {viewMode === 'list' && (
               <div className="flex items-center gap-1.5 text-xs">
