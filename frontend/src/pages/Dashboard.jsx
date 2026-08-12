@@ -1208,12 +1208,12 @@ const Dashboard = () => {
                       {/* Task Footer */}
                       <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex flex-col gap-2 text-xs text-slate-500 dark:text-slate-400">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5 max-w-[180px]" title={`${task.assignedBy} ➔ ${task.assignedTo}`}>
+                          <div className="flex items-center gap-1.5" title={`${task.assignedBy} ➔ ${task.assignedTo}`}>
                             <User className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate">{task.assignedBy}</span>
+                            <span>{task.assignedBy}</span>
                             <span className="mx-1 text-[13px] font-black text-slate-400 dark:text-slate-500 shrink-0">➔</span>
                             <User className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate">{task.assignedTo}</span>
+                            <span>{task.assignedTo}</span>
                           </div>
                           {task.createdDate && (
                             <span className="text-[10px] text-slate-400">
@@ -1951,12 +1951,12 @@ const Dashboard = () => {
                           <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 line-clamp-2">{task.description}</p>
                         )}
                         <div className="flex items-center justify-between text-[10px] text-slate-400 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/40">
-                          <div className="flex items-center gap-1 max-w-[200px]" title={`${task.assignedBy} ➔ ${task.assignedTo}`}>
+                          <div className="flex items-center gap-1" title={`${task.assignedBy} ➔ ${task.assignedTo}`}>
                             <User className="w-3 h-3 shrink-0" />
-                            <span className="truncate">{task.assignedBy}</span>
+                            <span>{task.assignedBy}</span>
                             <span className="mx-1 text-[11px] font-black text-slate-400 dark:text-slate-500 shrink-0">➔</span>
                             <User className="w-3 h-3 shrink-0" />
-                            <span className="truncate">{task.assignedTo}</span>
+                            <span>{task.assignedTo}</span>
                           </div>
                           {task.dueDate && (
                             <span>{new Date(task.dueDate).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</span>
