@@ -11,7 +11,8 @@ import {
   ChevronDown, 
   ChevronUp,
   Calendar,
-  ClipboardList
+  ClipboardList,
+  X
 } from 'lucide-react';
 
 const TaskTracking = () => {
@@ -24,6 +25,23 @@ const TaskTracking = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [expandedUsers, setExpandedUsers] = useState({});
+  const [userFilters, setUserFilters] = useState({});
+
+  const updateUserFilter = (username, key, value) => {
+    setUserFilters(prev => ({
+      ...prev,
+      [username]: {
+        ...(prev[username] || {
+          statusFilter: 'ALL',
+          priorityFilter: 'ALL',
+          dateFilterType: 'ALL',
+          startDate: '',
+          endDate: ''
+        }),
+        [key]: value
+      }
+    }));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -262,62 +280,201 @@ const TaskTracking = () => {
                 </div>
 
                 {/* Collapsible Tasks List */}
-                {isExpanded && (
-                  <div className="border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-slate-950/10 p-5">
-                    {item.tasks.length === 0 ? (
-                      <p className="text-sm text-slate-400 italic py-2">No tasks assigned to this user.</p>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse text-xs table-lined">
-                          <thead>
-                            <tr className="text-slate-400 uppercase font-bold tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2">
-                              <th className="pb-3">Task Title</th>
-                              <th className="pb-3 text-center">Priority</th>
-                              <th className="pb-3 text-center">Status</th>
-                              <th className="pb-3 text-center">Assigned By</th>
-                              <th className="pb-3 text-center">Due Date</th>
-                              <th className="pb-3 text-center">Due Time</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 dark:divide-slate-850">
-                            {item.tasks.map(task => (
-                              <tr key={task.id} className="hover:bg-slate-100/30 dark:hover:bg-slate-900/5 transition-colors border-b border-slate-100 dark:border-slate-800/80">
-                                <td className="py-3 font-semibold text-slate-700 dark:text-slate-300 max-w-[250px] truncate" title={task.title}>
-                                  {task.title}
-                                </td>
-                                <td className="py-3 text-center">
-                                  <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${getPriorityStyle(task.priority)}`}>
-                                    {task.priority}
-                                  </span>
-                                </td>
-                                <td className="py-3 text-center">
-                                  {(() => {
-                                    const isTaskOverdue = task.status === 'OVERDUE' || (task.status !== 'COMPLETED' && task.status !== 'ON_HOLD' && task.dueDate && new Date(task.dueDate) < new Date());
-                                    const displayStatus = isTaskOverdue ? 'OVERDUE' : task.status;
-                                    return (
-                                      <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${getStatusStyle(displayStatus)}`}>
-                                        {displayStatus.replace('_', ' ')}
-                                      </span>
-                                    );
-                                  })()}
-                                </td>
-                                <td className="py-3 text-center text-slate-500 dark:text-slate-400">
-                                  {task.assignedBy}
-                                </td>
-                                <td className="py-3 text-center text-slate-500 dark:text-slate-400">
-                                  {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No deadline'}
-                                </td>
-                                <td className="py-3 text-center text-slate-500 dark:text-slate-400">
-                                  {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No deadline'}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                {isExpanded && (() => {
+                  const userFilter = userFilters[item.username] || {
+                    statusFilter: 'ALL',
+                    priorityFilter: 'ALL',
+                    dateFilterType: 'ALL',
+                    startDate: '',
+                    endDate: ''
+                  };
+
+                  const filteredUserTasks = item.tasks.filter(task => {
+                    const isTaskOverdue = task.status === 'OVERDUE' || (task.status !== 'COMPLETED' && task.status !== 'ON_HOLD' && task.dueDate && new Date(task.dueDate) < new Date());
+                    
+                    // 1. Status Filter
+                    let matchesStatus = false;
+                    if (userFilter.statusFilter === 'ALL') {
+                      matchesStatus = true;
+                    } else if (userFilter.statusFilter === 'OVERDUE') {
+                      matchesStatus = isTaskOverdue;
+                    } else if (userFilter.statusFilter === 'PENDING') {
+                      matchesStatus = task.status === 'PENDING' && !isTaskOverdue;
+                    } else if (userFilter.statusFilter === 'IN_PROGRESS') {
+                      matchesStatus = task.status === 'IN_PROGRESS' && !isTaskOverdue;
+                    } else {
+                      matchesStatus = task.status === userFilter.statusFilter;
+                    }
+
+                    // 2. Priority Filter
+                    const matchesPriority = userFilter.priorityFilter === 'ALL' || task.priority === userFilter.priorityFilter;
+
+                    // 3. Date Range Filter
+                    let matchesDate = true;
+                    if (userFilter.dateFilterType !== 'ALL' && (userFilter.startDate || userFilter.endDate)) {
+                      const dateToCompare = userFilter.dateFilterType === 'CREATED_DATE' ? task.createdDate : task.dueDate;
+                      if (!dateToCompare) {
+                        matchesDate = false;
+                      } else {
+                        const compareDate = new Date(dateToCompare);
+                        compareDate.setHours(0,0,0,0);
+                        
+                        if (userFilter.startDate) {
+                          const start = new Date(userFilter.startDate);
+                          start.setHours(0,0,0,0);
+                          if (compareDate < start) matchesDate = false;
+                        }
+                        if (userFilter.endDate) {
+                          const end = new Date(userFilter.endDate);
+                          end.setHours(0,0,0,0);
+                          if (compareDate > end) matchesDate = false;
+                        }
+                      }
+                    }
+
+                    return matchesStatus && matchesPriority && matchesDate;
+                  });
+
+                  return (
+                    <div className="border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-slate-950/10 p-5">
+                      {/* User Local Filters Bar */}
+                      <div className="flex flex-wrap items-center gap-4 mb-4 text-xs bg-slate-100/40 dark:bg-slate-900/30 p-3 rounded-2xl border border-slate-205 dark:border-slate-800/50">
+                        {/* Status Select */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-slate-500 font-semibold">Status:</span>
+                          <select 
+                            value={userFilter.statusFilter}
+                            onChange={(e) => updateUserFilter(item.username, 'statusFilter', e.target.value)}
+                            className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold"
+                          >
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ALL">All Statuses</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="PENDING">Pending</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="IN_PROGRESS">In Progress</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="COMPLETED">Completed</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="OVERDUE">Overdue</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ON_HOLD">On-Hold</option>
+                          </select>
+                        </div>
+
+                        {/* Priority Select */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-slate-500 font-semibold">Priority:</span>
+                          <select 
+                            value={userFilter.priorityFilter}
+                            onChange={(e) => updateUserFilter(item.username, 'priorityFilter', e.target.value)}
+                            className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold"
+                          >
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ALL">All Priorities</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="HIGH">High</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="MEDIUM">Medium</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="LOW">Low</option>
+                          </select>
+                        </div>
+
+                        {/* Date Range Select */}
+                        <div className="flex items-center gap-1.5 flex-wrap lg:flex-nowrap">
+                          <span className="text-slate-500 font-semibold">Date Range:</span>
+                          <select 
+                            value={userFilter.dateFilterType}
+                            onChange={(e) => {
+                              updateUserFilter(item.username, 'dateFilterType', e.target.value);
+                              updateUserFilter(item.username, 'startDate', '');
+                              updateUserFilter(item.username, 'endDate', '');
+                            }}
+                            className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold"
+                          >
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ALL">All Dates</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="CREATED_DATE">By Creation Date</option>
+                            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="DUE_DATE">By Due Date</option>
+                          </select>
+
+                          {userFilter.dateFilterType !== 'ALL' && (
+                            <div className="flex items-center gap-1.5">
+                              <input 
+                                type="date" 
+                                value={userFilter.startDate}
+                                onChange={(e) => updateUserFilter(item.username, 'startDate', e.target.value)}
+                                className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
+                              />
+                              <span className="text-slate-400">to</span>
+                              <input 
+                                type="date" 
+                                value={userFilter.endDate}
+                                onChange={(e) => updateUserFilter(item.username, 'endDate', e.target.value)}
+                                className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
+                              />
+                              {(userFilter.startDate || userFilter.endDate) && (
+                                <button 
+                                  onClick={() => {
+                                    updateUserFilter(item.username, 'startDate', '');
+                                    updateUserFilter(item.username, 'endDate', '');
+                                  }}
+                                  className="p-1 text-slate-400 hover:text-rose-500 transition-colors"
+                                  title="Clear date range"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                )}
+
+                      {filteredUserTasks.length === 0 ? (
+                        <p className="text-sm text-slate-400 italic py-2">No matching tasks found.</p>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse text-xs table-lined">
+                            <thead>
+                              <tr className="text-slate-400 uppercase font-bold tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2">
+                                <th className="pb-3">Task Title</th>
+                                <th className="pb-3 text-center">Priority</th>
+                                <th className="pb-3 text-center">Status</th>
+                                <th className="pb-3 text-center">Assigned By</th>
+                                <th className="pb-3 text-center">Due Date</th>
+                                <th className="pb-3 text-center">Due Time</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-850">
+                              {filteredUserTasks.map(task => (
+                                <tr key={task.id} className="hover:bg-slate-100/30 dark:hover:bg-slate-900/5 transition-colors border-b border-slate-100 dark:border-slate-800/80">
+                                  <td className="py-3 font-semibold text-slate-700 dark:text-slate-300 max-w-[250px] truncate" title={task.title}>
+                                    {task.title}
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${getPriorityStyle(task.priority)}`}>
+                                      {task.priority}
+                                    </span>
+                                  </td>
+                                  <td className="py-3 text-center">
+                                    {(() => {
+                                      const isTaskOverdue = task.status === 'OVERDUE' || (task.status !== 'COMPLETED' && task.status !== 'ON_HOLD' && task.dueDate && new Date(task.dueDate) < new Date());
+                                      const displayStatus = isTaskOverdue ? 'OVERDUE' : task.status;
+                                      return (
+                                        <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${getStatusStyle(displayStatus)}`}>
+                                          {displayStatus.replace('_', ' ')}
+                                        </span>
+                                      );
+                                    })()}
+                                  </td>
+                                  <td className="py-3 text-center text-slate-500 dark:text-slate-400">
+                                    {task.assignedBy}
+                                  </td>
+                                  <td className="py-3 text-center text-slate-500 dark:text-slate-400">
+                                    {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No deadline'}
+                                  </td>
+                                  <td className="py-3 text-center text-slate-500 dark:text-slate-400">
+                                    {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No deadline'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}
