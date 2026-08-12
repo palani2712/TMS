@@ -46,6 +46,9 @@ const Dashboard = () => {
   const [sortBy, setSortBy] = useState(() => localStorage.getItem('tms-dashboard-sortBy') || 'createdDate');
   const [displayMode, setDisplayMode] = useState(() => localStorage.getItem('tms-dashboard-displayMode') || 'default'); // 'default' | 'table'
   const [currentPage, setCurrentPage] = useState(1);
+  const [dateFilterType, setDateFilterType] = useState('ALL'); // 'ALL' | 'CREATED_DATE' | 'DUE_DATE'
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const itemsPerPage = 6;
 
   // Modal State
@@ -605,7 +608,48 @@ const Dashboard = () => {
           matchesAssignment = task.assignedTo === user.username;
         }
 
-        return matchesSearch && matchesStatus && matchesPriority && matchesAssignment;
+        let matchesDateRange = true;
+        if (dateFilterType === 'CREATED_DATE') {
+          if (startDate || endDate) {
+            const created = task.createdDate ? new Date(task.createdDate) : null;
+            if (created) {
+              const createdDateOnly = new Date(created.getFullYear(), created.getMonth(), created.getDate());
+              if (startDate) {
+                const parts = startDate.split('-');
+                const start = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                if (createdDateOnly < start) matchesDateRange = false;
+              }
+              if (endDate) {
+                const parts = endDate.split('-');
+                const end = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                if (createdDateOnly > end) matchesDateRange = false;
+              }
+            } else {
+              matchesDateRange = false;
+            }
+          }
+        } else if (dateFilterType === 'DUE_DATE') {
+          if (startDate || endDate) {
+            const due = task.dueDate ? new Date(task.dueDate) : null;
+            if (due) {
+              const dueDateOnly = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+              if (startDate) {
+                const parts = startDate.split('-');
+                const start = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                if (dueDateOnly < start) matchesDateRange = false;
+              }
+              if (endDate) {
+                const parts = endDate.split('-');
+                const end = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                if (dueDateOnly > end) matchesDateRange = false;
+              }
+            } else {
+              matchesDateRange = false;
+            }
+          }
+        }
+
+        return matchesSearch && matchesStatus && matchesPriority && matchesAssignment && matchesDateRange;
       })
       .sort((a, b) => {
         // Pinned tasks float to the top
@@ -626,7 +670,7 @@ const Dashboard = () => {
         }
         return b.id - a.id;
       });
-  }, [tasks, searchQuery, statusFilter, priorityFilter, sortBy, assignmentFilter, user.username]);
+  }, [tasks, searchQuery, statusFilter, priorityFilter, sortBy, assignmentFilter, user.username, dateFilterType, startDate, endDate]);
 
   // Pagination Logic
   const paginatedTasks = useMemo(() => {
@@ -1143,6 +1187,47 @@ const Dashboard = () => {
                 <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="priority">Priority weight</option>
                 <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="createdDate">Creation date</option>
               </select>
+            </div>
+
+            {/* Date Range Filter */}
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-slate-500">Date Range:</span>
+              <select 
+                value={dateFilterType}
+                onChange={(e) => { setDateFilterType(e.target.value); setCurrentPage(1); }}
+                className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold"
+              >
+                <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ALL">All Dates</option>
+                <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="CREATED_DATE">By Creation Date</option>
+                <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="DUE_DATE">By Due Date</option>
+              </select>
+              
+              {dateFilterType !== 'ALL' && (
+                <div className="flex items-center gap-1.5">
+                  <input 
+                    type="date" 
+                    value={startDate}
+                    onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
+                    className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
+                  />
+                  <span className="text-slate-400">to</span>
+                  <input 
+                    type="date" 
+                    value={endDate}
+                    onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
+                    className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
+                  />
+                  {(startDate || endDate) && (
+                    <button 
+                      onClick={() => { setStartDate(''); setEndDate(''); setCurrentPage(1); }}
+                      className="p-1 text-slate-400 hover:text-rose-500 transition-colors"
+                      title="Clear date range"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
