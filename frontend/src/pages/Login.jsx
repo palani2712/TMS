@@ -208,7 +208,7 @@ const Login = () => {
                   placeholder="Enter your username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
+                  className="w-full pl-10 pr-4 py-2 bg-[#DCDCDC] border border-slate-300 rounded-xl text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
                   required
                   autoComplete="username"
                 />
@@ -230,7 +230,7 @@ const Login = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
+                  className="w-full pl-10 pr-10 py-2 bg-[#DCDCDC] border border-slate-300 rounded-xl text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all text-sm font-medium"
                   required
                   autoComplete="current-password"
                 />
@@ -301,7 +301,7 @@ const Login = () => {
                   placeholder="Enter your username"
                   value={forgotUsername}
                   onChange={(e) => setForgotUsername(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
+                  className="w-full px-4 py-2.5 bg-[#DCDCDC] border border-slate-300 rounded-xl text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-medium"
                   required
                 />
               </div>
