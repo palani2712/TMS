@@ -181,8 +181,8 @@ const ThemeLoader = () => {
             500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#0c4a6e', 900: '#082f49'
           },
           themeVars: {
-            '--color-bg-app': '#ffffff',
-            '--color-bg-card': 'rgba(179, 224, 255, 0.85)',
+            '--color-bg-app': '#bae6fd',
+            '--color-bg-card': 'rgba(255, 255, 255, 0.95)',
             '--color-text-main': '#0c4a6e',
             '--color-border-main': 'rgba(14, 165, 233, 0.4)',
             '--color-chart-completed': '#10b981',
@@ -255,8 +255,8 @@ function App() {
             500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#0c4a6e', 900: '#082f49'
           },
           themeVars: {
-            '--color-bg-app': '#ffffff',
-            '--color-bg-card': 'rgba(179, 224, 255, 0.85)',
+            '--color-bg-app': '#bae6fd',
+            '--color-bg-card': 'rgba(255, 255, 255, 0.95)',
             '--color-text-main': '#0c4a6e',
             '--color-border-main': 'rgba(14, 165, 233, 0.4)',
             '--color-chart-completed': '#10b981',
