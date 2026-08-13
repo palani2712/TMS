@@ -111,8 +111,9 @@ const Users = () => {
       showToast('Email ID is required.', 'error');
       return;
     }
-    if (!userForm.email.trim().toLowerCase().endsWith('.com')) {
-      showToast('Email ID must end with .com', 'error');
+    const emailLower = userForm.email.trim().toLowerCase();
+    if (!emailLower.endsWith('.com') && !emailLower.endsWith('.in')) {
+      showToast('Email ID must end with .com or .in', 'error');
       return;
     }
 

@@ -191,8 +191,9 @@ const Settings = () => {
     // Validate email ends with .com if entered
     const emailVal = profileForm.email.trim();
     if (emailVal) {
-      if (!emailVal.toLowerCase().endsWith('.com')) {
-        showToast('Email ID must end with .com', 'error');
+      const emailLower = emailVal.toLowerCase();
+      if (!emailLower.endsWith('.com') && !emailLower.endsWith('.in')) {
+        showToast('Email ID must end with .com or .in', 'error');
         setIsSaving(false);
         return;
       }
