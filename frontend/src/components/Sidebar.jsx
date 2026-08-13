@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import API from '../services/api';
+import API, { formatDateTime } from '../services/api';
 import { 
   CheckSquare, 
   Users, 
@@ -261,7 +261,7 @@ const Sidebar = () => {
                               {notif.message}
                             </p>
                             <span className="text-[10px] text-slate-400 dark:text-slate-500 block">
-                              {new Date(notif.createdDate).toLocaleString()}
+                              {formatDateTime(notif.createdDate)}
                             </span>
                           </div>
 

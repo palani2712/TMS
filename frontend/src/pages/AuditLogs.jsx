@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useToast } from '../context/ToastContext';
-import API from '../services/api';
+import API, { formatDateTime } from '../services/api';
 import { 
   History, 
   Search, 
@@ -119,7 +119,7 @@ const AuditLogs = () => {
                       <td className="p-4 font-medium text-slate-400 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{new Date(log.timestamp).toLocaleString()}</span>
+                          <span>{formatDateTime(log.timestamp)}</span>
                         </div>
                       </td>
 

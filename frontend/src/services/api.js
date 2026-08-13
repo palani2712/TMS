@@ -45,4 +45,23 @@ export const getErrorMessage = (err, defaultMsg = 'Something went wrong') => {
   return data.message || data.error || defaultMsg;
 };
 
+export const formatDate = (dateInput) => {
+  if (!dateInput) return '';
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return '';
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+export const formatDateTime = (dateInput) => {
+  if (!dateInput) return '';
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return '';
+  const dateStr = formatDate(d);
+  const timeStr = d.toLocaleTimeString();
+  return `${dateStr}, ${timeStr}`;
+};
+
 export default API;

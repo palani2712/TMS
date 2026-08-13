@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import API, { getErrorMessage } from '../services/api';
+import API, { getErrorMessage, formatDate, formatDateTime } from '../services/api';
 import { 
   Plus, 
   Search, 
@@ -1270,7 +1270,7 @@ const Dashboard = () => {
                           </div>
                           {task.createdDate && (
                             <span className="text-[10px] text-slate-400">
-                              Created: {new Date(task.createdDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
+                              Created: {formatDate(task.createdDate)}
                             </span>
                           )}
                         </div>
@@ -1278,7 +1278,7 @@ const Dashboard = () => {
                         {task.dueDate && (
                           <div className="flex items-center justify-end gap-1 text-slate-400 font-medium">
                             <Calendar className="w-3.5 h-3.5" />
-                            <span>Due: {new Date(task.dueDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
+                            <span>Due: {formatDate(task.dueDate)}</span>
                           </div>
                         )}
                       </div>
@@ -1342,10 +1342,10 @@ const Dashboard = () => {
                                 </div>
                               </td>
                               <td className="p-4 text-center text-slate-500 dark:text-slate-400">
-                                {task.createdDate ? new Date(task.createdDate).toLocaleDateString() : 'N/A'}
+                                {task.createdDate ? formatDate(task.createdDate) : 'N/A'}
                               </td>
                               <td className="p-4 text-center text-slate-500 dark:text-slate-400">
-                                {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No deadline'}
+                                {task.dueDate ? formatDate(task.dueDate) : 'No deadline'}
                               </td>
                               <td className="p-4 text-center text-slate-500 dark:text-slate-400">
                                 {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No deadline'}
@@ -1610,7 +1610,7 @@ const Dashboard = () => {
                 <div>
                   <span className="text-slate-500 block text-xs font-bold uppercase tracking-wider">Due Date</span>
                   <span className="font-semibold">
-                    {selectedTask.dueDate ? new Date(selectedTask.dueDate).toLocaleString() : 'No Deadline'}
+                    {selectedTask.dueDate ? formatDateTime(selectedTask.dueDate) : 'No Deadline'}
                   </span>
                 </div>
                 <div>
@@ -1815,7 +1815,7 @@ const Dashboard = () => {
                       <div key={comment.id} className="bg-slate-50 dark:bg-slate-950/40 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/40 flex flex-col gap-1 text-xs">
                         <div className="flex items-center justify-between text-slate-500">
                           <span className="font-bold">{comment.author}</span>
-                          <span>{new Date(comment.createdDate).toLocaleString()}</span>
+                          <span>{formatDateTime(comment.createdDate)}</span>
                         </div>
                         <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{comment.content}</p>
                       </div>
@@ -1866,7 +1866,7 @@ const Dashboard = () => {
               <div>
                 <h2 className="text-xl font-bold">Tasks for Day</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
-                  {selectedDate ? selectedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''}
+                  {selectedDate ? formatDate(selectedDate) : ''}
                 </p>
               </div>
               <button

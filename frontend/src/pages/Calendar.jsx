@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import API, { getErrorMessage } from '../services/api';
+import API, { getErrorMessage, formatDate, formatDateTime } from '../services/api';
 import { 
   Plus, 
   Search, 
@@ -950,7 +950,7 @@ const Calendar = () => {
                 <div>
                   <span className="text-slate-500 block text-xs font-bold uppercase tracking-wider">Due Date</span>
                   <span className="font-semibold">
-                    {selectedTask.dueDate ? new Date(selectedTask.dueDate).toLocaleString() : 'No Deadline'}
+                    {selectedTask.dueDate ? formatDateTime(selectedTask.dueDate) : 'No Deadline'}
                   </span>
                 </div>
                 <div>
@@ -1117,7 +1117,7 @@ const Calendar = () => {
                       <div key={comment.id} className="bg-slate-50 dark:bg-slate-950/40 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/40 flex flex-col gap-1 text-xs">
                         <div className="flex items-center justify-between text-slate-500">
                           <span className="font-bold">{comment.author}</span>
-                          <span>{new Date(comment.createdDate).toLocaleString()}</span>
+                          <span>{formatDateTime(comment.createdDate)}</span>
                         </div>
                         <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{comment.content}</p>
                       </div>
@@ -1166,7 +1166,7 @@ const Calendar = () => {
               <div>
                 <h2 className="text-xl font-bold">Tasks for Day</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
-                  {selectedDate ? selectedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ''}
+                  {selectedDate ? formatDate(selectedDate) : ''}
                 </p>
               </div>
               <button

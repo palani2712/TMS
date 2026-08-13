@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import API from '../services/api';
+import API, { formatDate } from '../services/api';
 import { 
   Users, 
   Search, 
@@ -457,7 +457,7 @@ const TaskTracking = () => {
                                     {task.assignedBy}
                                   </td>
                                   <td className="py-3 text-center text-slate-500 dark:text-slate-400">
-                                    {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No deadline'}
+                                    {task.dueDate ? formatDate(task.dueDate) : 'No deadline'}
                                   </td>
                                   <td className="py-3 text-center text-slate-500 dark:text-slate-400">
                                     {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No deadline'}
