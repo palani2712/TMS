@@ -1589,6 +1589,7 @@ const Dashboard = () => {
                     value={taskForm.dueDate}
                     onChange={handleFormChange}
                     className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-slate-100 text-sm"
+                  />
                 </div>
               </div>
 
