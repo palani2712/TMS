@@ -427,6 +427,7 @@ const TaskTracking = () => {
                                 <th className="pb-3 text-center">Priority</th>
                                 <th className="pb-3 text-center">Status</th>
                                 <th className="pb-3 text-center">Assigned By</th>
+                                <th className="pb-3 text-center">Created Date</th>
                                 <th className="pb-3 text-center">Due Date</th>
                                 <th className="pb-3 text-center">Due Time</th>
                               </tr>
@@ -455,6 +456,9 @@ const TaskTracking = () => {
                                   </td>
                                   <td className="py-3 text-center text-slate-500 dark:text-slate-400">
                                     {task.assignedBy}
+                                  </td>
+                                  <td className="py-3 text-center text-slate-500 dark:text-slate-400">
+                                    {task.createdDate ? formatDate(task.createdDate) : 'N/A'}
                                   </td>
                                   <td className="py-3 text-center text-slate-500 dark:text-slate-400">
                                     {task.dueDate ? formatDate(task.dueDate) : 'No deadline'}
