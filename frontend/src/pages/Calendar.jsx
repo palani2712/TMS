@@ -74,6 +74,7 @@ const Calendar = () => {
   const [floatingActiveTabId, setFloatingActiveTabId] = useState('');
   const [floatingEditingTabId, setFloatingEditingTabId] = useState('');
   const [floatingEditName, setFloatingEditName] = useState('');
+  const [selectedAssigneeRole, setSelectedAssigneeRole] = useState('ROLE_EMPLOYEE');
 
   // Draggable Notes Position State
   const modalRef = useRef(null);
@@ -267,15 +268,18 @@ const Calendar = () => {
 
   const openCreateModalForDate = (date) => {
     const localDateTime = getCurrentLocalDateTime(date);
+    const defaultAssignee = user.role === 'ROLE_EMPLOYEE' ? user.username : (employees[0]?.username || '');
+    const defaultRole = user.role === 'ROLE_EMPLOYEE' ? user.role : (employees.find(emp => emp.username === defaultAssignee)?.role || 'ROLE_EMPLOYEE');
     
     setTaskForm({
       id: null,
       title: '',
       description: '',
-      assignedTo: user.role === 'ROLE_EMPLOYEE' ? user.username : (employees[0]?.username || ''),
+      assignedTo: defaultAssignee,
       priority: 'MEDIUM',
       dueDate: localDateTime,
     });
+    setSelectedAssigneeRole(defaultRole);
     setIsCreateModalOpen(true);
   };
 
@@ -307,6 +311,8 @@ const Calendar = () => {
       dueDate: task.dueDate ? task.dueDate.substring(0, 16) : '',
       status: task.status,
     });
+    const targetUser = employees.find(emp => emp.username === task.assignedTo);
+    setSelectedAssigneeRole(targetUser?.role || 'ROLE_EMPLOYEE');
     setIsCreateModalOpen(true);
     setIsDetailsModalOpen(false);
   };
@@ -828,25 +834,51 @@ const Calendar = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 {user?.role !== 'ROLE_EMPLOYEE' && (
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign To</label>
-                    <select
-                      name="assignedTo"
-                      value={taskForm.assignedTo}
-                      onChange={handleFormChange}
-                      className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--color-button-secondary-bg)] text-[var(--color-text-main)] text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-medium"
-                      required
-                    >
-                      {employees.map((emp) => (
-                        <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" key={emp.id} value={emp.username}>
-                          {emp.username} ({emp.fullName})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                  <>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign To Role</label>
+                      <select
+                        value={selectedAssigneeRole}
+                        onChange={(e) => {
+                          const newRole = e.target.value;
+                          setSelectedAssigneeRole(newRole);
+                          const filtered = employees.filter(emp => emp.role === newRole);
+                          if (filtered.length > 0) {
+                            setTaskForm(prev => ({ ...prev, assignedTo: filtered[0].username }));
+                          } else {
+                            setTaskForm(prev => ({ ...prev, assignedTo: '' }));
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--color-button-secondary-bg)] text-[var(--color-text-main)] text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-medium"
+                      >
+                        <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ROLE_ADMIN">General Manager</option>
+                        <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>
+                        <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
+                      </select>
+                    </div>
 
-                <div className={user?.role === 'ROLE_EMPLOYEE' ? 'col-span-2' : ''}>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign To User</label>
+                      <select
+                        name="assignedTo"
+                        value={taskForm.assignedTo}
+                        onChange={handleFormChange}
+                        className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-[var(--color-button-secondary-bg)] text-[var(--color-text-main)] text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-medium"
+                        required
+                      >
+                        {employees.filter(emp => emp.role === selectedAssigneeRole).map((emp) => (
+                          <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" key={emp.id} value={emp.username}>
+                            {emp.username} ({emp.fullName})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className={user?.role === 'ROLE_EMPLOYEE' ? 'col-span-2' : 'col-span-2'}>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Priority</label>
                   <select
                     name="priority"

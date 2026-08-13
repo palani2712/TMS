@@ -72,6 +72,7 @@ const Dashboard = () => {
   });
 
   const [commentText, setCommentText] = useState('');
+  const [selectedAssigneeRole, setSelectedAssigneeRole] = useState('ROLE_EMPLOYEE');
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [assignmentFilter, setAssignmentFilter] = useState(() => localStorage.getItem('tms-dashboard-assignmentFilter') || 'ALL'); // 'ALL' | 'ASSIGNED_TO_OTHERS' | 'SELF_ASSIGNED'
 
@@ -332,29 +333,36 @@ const Dashboard = () => {
 
   // Open Create Modal
   const openCreateModal = () => {
+    const defaultAssignee = user.role === 'ROLE_EMPLOYEE' ? user.username : (employees[0]?.username || '');
+    const defaultRole = user.role === 'ROLE_EMPLOYEE' ? user.role : (employees.find(emp => emp.username === defaultAssignee)?.role || 'ROLE_EMPLOYEE');
+    
     setTaskForm({
       id: null,
       title: '',
       description: '',
-      assignedTo: user.role === 'ROLE_EMPLOYEE' ? user.username : (employees[0]?.username || ''),
+      assignedTo: defaultAssignee,
       priority: 'MEDIUM',
       dueDate: getCurrentLocalDateTime(),
     });
+    setSelectedAssigneeRole(defaultRole);
     setIsCreateModalOpen(true);
   };
 
   // Open Create Modal for specific Calendar Date
   const openCreateModalForDate = (date) => {
     const localDateTime = getCurrentLocalDateTime(date);
+    const defaultAssignee = user.role === 'ROLE_EMPLOYEE' ? user.username : (employees[0]?.username || '');
+    const defaultRole = user.role === 'ROLE_EMPLOYEE' ? user.role : (employees.find(emp => emp.username === defaultAssignee)?.role || 'ROLE_EMPLOYEE');
     
     setTaskForm({
       id: null,
       title: '',
       description: '',
-      assignedTo: user.role === 'ROLE_EMPLOYEE' ? user.username : (employees[0]?.username || ''),
+      assignedTo: defaultAssignee,
       priority: 'MEDIUM',
       dueDate: localDateTime,
     });
+    setSelectedAssigneeRole(defaultRole);
     setIsCreateModalOpen(true);
   };
 
@@ -390,6 +398,8 @@ const Dashboard = () => {
       dueDate: task.dueDate ? task.dueDate.substring(0, 16) : '',
       status: task.status,
     });
+    const targetUser = employees.find(emp => emp.username === task.assignedTo);
+    setSelectedAssigneeRole(targetUser?.role || 'ROLE_EMPLOYEE');
     setIsCreateModalOpen(true);
     setIsDetailsModalOpen(false);
   };
@@ -1484,58 +1494,101 @@ const Dashboard = () => {
                   placeholder="Provide task notes or details"
                   rows="3"
                   className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/50 resize-none"
-                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {user?.role === 'ROLE_EMPLOYEE' ? (
+                  <>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign To</label>
+                      <input
+                        type="text"
+                        name="assignedTo"
+                        value={taskForm.assignedTo || user.username}
+                        disabled
+                        className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-100/50 dark:bg-slate-900/50 text-slate-500 cursor-not-allowed text-sm focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Priority</label>
+                      <select
+                        name="priority"
+                        value={taskForm.priority}
+                        onChange={handleFormChange}
+                        className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                      >
+                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="LOW">Low</option>
+                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="MEDIUM">Medium</option>
+                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="HIGH">High</option>
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign To Role</label>
+                      <select
+                        value={selectedAssigneeRole}
+                        onChange={(e) => {
+                          const newRole = e.target.value;
+                          setSelectedAssigneeRole(newRole);
+                          const filtered = employees.filter(emp => emp.role === newRole);
+                          if (filtered.length > 0) {
+                            setTaskForm(prev => ({ ...prev, assignedTo: filtered[0].username }));
+                          } else {
+                            setTaskForm(prev => ({ ...prev, assignedTo: '' }));
+                          }
+                        }}
+                        className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-semibold"
+                      >
+                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_ADMIN">General Manager</option>
+                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>
+                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign To User</label>
+                      <select
+                        name="assignedTo"
+                        value={taskForm.assignedTo}
+                        onChange={handleFormChange}
+                        className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-semibold"
+                      >
+                        {employees.filter(emp => emp.role === selectedAssigneeRole).map(e => (
+                          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" key={e.id} value={e.username}>{e.username}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign To</label>
-                  {user?.role === 'ROLE_EMPLOYEE' ? (
-                    <input
-                      type="text"
-                      name="assignedTo"
-                      value={taskForm.assignedTo || user.username}
-                      disabled
-                      className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-100/50 dark:bg-slate-900/50 text-slate-500 cursor-not-allowed text-sm focus:outline-none"
-                    />
-                  ) : (
+                {user?.role !== 'ROLE_EMPLOYEE' && (
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Priority</label>
                     <select
-                      name="assignedTo"
-                      value={taskForm.assignedTo}
+                      name="priority"
+                      value={taskForm.priority}
                       onChange={handleFormChange}
                       className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm"
                     >
-                      {employees.map(e => (
-                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" key={e.id} value={e.username}>{e.username}</option>
-                      ))}
+                      <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="LOW">Low</option>
+                      <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="MEDIUM">Medium</option>
+                      <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="HIGH">High</option>
                     </select>
-                  )}
-                </div>
+                  </div>
+                )}
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Priority</label>
-                  <select
-                    name="priority"
-                    value={taskForm.priority}
+                <div className={user?.role === 'ROLE_EMPLOYEE' ? "col-span-2" : ""}>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Due Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    name="dueDate"
+                    value={taskForm.dueDate}
                     onChange={handleFormChange}
-                    className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
-                  >
-                    <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="LOW">Low</option>
-                    <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="MEDIUM">Medium</option>
-                    <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="HIGH">High</option>
-                  </select>
+                    className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-slate-100 text-sm"
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Due Date & Time</label>
-                <input
-                  type="datetime-local"
-                  name="dueDate"
-                  value={taskForm.dueDate}
-                  onChange={handleFormChange}
-                  className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-800 dark:text-slate-100"
-                />
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
