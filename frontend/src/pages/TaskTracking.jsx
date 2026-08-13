@@ -371,7 +371,7 @@ const TaskTracking = () => {
                         </div>
 
                         {/* Date Range Select */}
-                        <div className="flex items-center gap-1.5 flex-wrap lg:flex-nowrap">
+                        <div className="flex items-center gap-4 flex-wrap lg:flex-nowrap">
                           <span className="text-slate-500 font-semibold">Date Range:</span>
                           <select 
                             value={userFilter.dateFilterType}
