@@ -345,14 +345,16 @@ const TaskTracking = () => {
                       {/* User Local Filters Bar */}
                       <div className="flex flex-wrap items-center justify-center gap-4 mb-4 text-xs bg-slate-100/40 dark:bg-slate-900/30 p-3 rounded-2xl border border-slate-205 dark:border-slate-800/50">
                         {/* Task Title Search */}
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-slate-500 font-semibold">Search:</span>
+                        <div className="relative w-full max-w-[200px]">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <Search className="w-3.5 h-3.5" />
+                          </div>
                           <input 
                             type="text" 
                             placeholder="Search task title..."
                             value={userFilter.titleSearch || ''}
                             onChange={(e) => updateUserFilter(item.username, 'titleSearch', e.target.value)}
-                            className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold w-40"
+                            className="w-full pl-8 pr-4 py-1.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-transparent text-xs focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-slate-850 dark:text-slate-100 font-semibold"
                           />
                         </div>
 
