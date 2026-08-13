@@ -35,7 +35,8 @@ const TaskTracking = () => {
           priorityFilter: 'ALL',
           dateFilterType: 'CREATED_DATE',
           startDate: '',
-          endDate: ''
+          endDate: '',
+          titleSearch: ''
         }),
         [key]: value
       }
@@ -285,12 +286,17 @@ const TaskTracking = () => {
                     priorityFilter: 'ALL',
                     dateFilterType: 'CREATED_DATE',
                     startDate: '',
-                    endDate: ''
+                    endDate: '',
+                    titleSearch: ''
                   };
 
                   const filteredUserTasks = item.tasks.filter(task => {
                     const isTaskOverdue = task.status === 'OVERDUE' || (task.status !== 'COMPLETED' && task.status !== 'ON_HOLD' && task.dueDate && new Date(task.dueDate) < new Date());
                     
+                    // 0. Title Search Filter
+                    const matchesTitle = !userFilter.titleSearch || task.title.toLowerCase().includes(userFilter.titleSearch.toLowerCase());
+                    if (!matchesTitle) return false;
+
                     // 1. Status Filter
                     let matchesStatus = false;
                     if (userFilter.statusFilter === 'ALL') {
@@ -338,6 +344,18 @@ const TaskTracking = () => {
                     <div className="border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-slate-950/10 p-5">
                       {/* User Local Filters Bar */}
                       <div className="flex flex-wrap items-center justify-center gap-4 mb-4 text-xs bg-slate-100/40 dark:bg-slate-900/30 p-3 rounded-2xl border border-slate-205 dark:border-slate-800/50">
+                        {/* Task Title Search */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-slate-500 font-semibold">Search:</span>
+                          <input 
+                            type="text" 
+                            placeholder="Search task title..."
+                            value={userFilter.titleSearch || ''}
+                            onChange={(e) => updateUserFilter(item.username, 'titleSearch', e.target.value)}
+                            className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold w-40"
+                          />
+                        </div>
+
                         {/* Status Select */}
                         <div className="flex items-center gap-1.5">
                           <span className="text-slate-500 font-semibold">Status:</span>
