@@ -802,7 +802,7 @@ const Calendar = () => {
                   const year = currentModalTime.getFullYear();
                   const hours = String(currentModalTime.getHours()).padStart(2, '0');
                   const minutes = String(currentModalTime.getMinutes()).padStart(2, '0');
-                  return `${hours}:${minutes} ${day}-${month}-${year}`;
+                  return `${hours}:${minutes}   ${day}/${month}/${year}`;
                 })()}
               </div>
             </div>
