@@ -770,7 +770,9 @@ const Calendar = () => {
                             : noneCompleted
                               ? 'bg-rose-500 text-white shadow-sm font-black'
                               : 'bg-amber-500 text-white shadow-sm font-black'
-                          : 'text-slate-700 dark:text-slate-200'
+                          : day.isCurrentMonth
+                            ? 'text-slate-900 dark:text-slate-100'
+                            : 'text-slate-400/70 dark:text-slate-600'
                     }`}>
                       {day.date.getDate()}
                     </span>
