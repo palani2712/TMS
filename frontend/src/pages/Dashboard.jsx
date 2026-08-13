@@ -1494,6 +1494,7 @@ const Dashboard = () => {
                   placeholder="Provide task notes or details"
                   rows="3"
                   className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/50 resize-none"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {user?.role === 'ROLE_EMPLOYEE' ? (
