@@ -46,7 +46,7 @@ const Dashboard = () => {
   const [sortBy, setSortBy] = useState(() => localStorage.getItem('tms-dashboard-sortBy') || 'createdDate');
   const [displayMode, setDisplayMode] = useState(() => localStorage.getItem('tms-dashboard-displayMode') || 'default'); // 'default' | 'table'
   const [currentPage, setCurrentPage] = useState(1);
-  const [dateFilterType, setDateFilterType] = useState('ALL'); // 'ALL' | 'CREATED_DATE' | 'DUE_DATE'
+  const [dateFilterType, setDateFilterType] = useState('CREATED_DATE'); // 'CREATED_DATE' | 'DUE_DATE'
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const itemsPerPage = 6;
@@ -656,6 +656,18 @@ const Dashboard = () => {
         if (a.pinned && !b.pinned) return -1;
         if (!a.pinned && b.pinned) return 1;
 
+        // If date range is not specified, sort descending by the selected dateFilterType
+        if (!startDate && !endDate) {
+          if (dateFilterType === 'CREATED_DATE') {
+            return new Date(b.createdDate) - new Date(a.createdDate);
+          } else if (dateFilterType === 'DUE_DATE') {
+            if (!a.dueDate && !b.dueDate) return 0;
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return new Date(b.dueDate) - new Date(a.dueDate);
+          }
+        }
+
         if (sortBy === 'dueDate') {
           if (!a.dueDate) return 1;
           if (!b.dueDate) return -1;
@@ -1166,7 +1178,6 @@ const Dashboard = () => {
                 }}
                 className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold"
               >
-                <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ALL">All Dates</option>
                 <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="CREATED_DATE">By Creation Date</option>
                 <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="DUE_DATE">By Due Date</option>
               </select>
