@@ -337,7 +337,7 @@ const TaskTracking = () => {
                   return (
                     <div className="border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-slate-950/10 p-5">
                       {/* User Local Filters Bar */}
-                      <div className="flex flex-wrap items-center gap-4 mb-4 text-xs bg-slate-100/40 dark:bg-slate-900/30 p-3 rounded-2xl border border-slate-205 dark:border-slate-800/50">
+                      <div className="flex flex-wrap items-center justify-center gap-4 mb-4 text-xs bg-slate-100/40 dark:bg-slate-900/30 p-3 rounded-2xl border border-slate-205 dark:border-slate-800/50">
                         {/* Status Select */}
                         <div className="flex items-center gap-1.5">
                           <span className="text-slate-500 font-semibold">Status:</span>
