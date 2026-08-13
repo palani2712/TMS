@@ -1154,7 +1154,7 @@ const Dashboard = () => {
 
 
             {/* Date Range Filter */}
-            <div className="flex items-center gap-1.5 text-xs flex-wrap lg:flex-nowrap">
+            <div className="flex items-center gap-4 text-xs flex-wrap lg:flex-nowrap">
               <span className="text-slate-500">Date Range:</span>
               <select 
                 value={dateFilterType}
@@ -1171,32 +1171,30 @@ const Dashboard = () => {
                 <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="DUE_DATE">By Due Date</option>
               </select>
               
-              {dateFilterType !== 'ALL' && (
-                <div className="flex items-center gap-1.5">
-                  <input 
-                    type="date" 
-                    value={startDate}
-                    onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
-                    className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
-                  />
-                  <span className="text-slate-400">to</span>
-                  <input 
-                    type="date" 
-                    value={endDate}
-                    onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
-                    className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
-                  />
-                  {(startDate || endDate) && (
-                    <button 
-                      onClick={() => { setStartDate(''); setEndDate(''); setCurrentPage(1); }}
-                      className="p-1 text-slate-400 hover:text-rose-500 transition-colors"
-                      title="Clear date range"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              )}
+              <div className="flex items-center gap-1.5">
+                <input 
+                  type="date" 
+                  value={startDate}
+                  onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
+                  className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
+                />
+                <span className="text-slate-400">to</span>
+                <input 
+                  type="date" 
+                  value={endDate}
+                  onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
+                  className="bg-[var(--color-button-secondary-bg)] border border-[var(--color-button-secondary-border)] text-[var(--color-button-secondary-text)] rounded-xl px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500/50 font-semibold cursor-pointer"
+                />
+                {(startDate || endDate) && (
+                  <button 
+                    onClick={() => { setStartDate(''); setEndDate(''); setCurrentPage(1); }}
+                    className="p-1 text-slate-400 hover:text-rose-500 transition-colors"
+                    title="Clear date range"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
