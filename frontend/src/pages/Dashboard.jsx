@@ -97,15 +97,12 @@ const Dashboard = () => {
   const [isDraggingNotes, setIsDraggingNotes] = useState(false);
   const dragNotesStartRef = useRef({ x: 0, y: 0 });
 
-  // Initialize position to bottom right of screen on first open
   useEffect(() => {
     if (isFloatingNotesOpen) {
-      if (floatingNotesPos.x === 0 && floatingNotesPos.y === 0) {
-        setFloatingNotesPos({
-          x: window.innerWidth - 384 - 24,
-          y: window.innerHeight - 480 - 24
-        });
-      }
+      setFloatingNotesPos({
+        x: window.innerWidth - 384 - 24,
+        y: window.innerHeight - 480 - 24
+      });
     }
   }, [isFloatingNotesOpen]);
 

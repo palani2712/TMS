@@ -83,12 +83,10 @@ const Calendar = () => {
 
   useEffect(() => {
     if (isFloatingNotesOpen) {
-      if (floatingNotesPos.x === 0 && floatingNotesPos.y === 0) {
-        setFloatingNotesPos({
-          x: window.innerWidth - 384 - 24,
-          y: window.innerHeight - 480 - 24
-        });
-      }
+      setFloatingNotesPos({
+        x: window.innerWidth - 384 - 24,
+        y: window.innerHeight - 480 - 24
+      });
     }
   }, [isFloatingNotesOpen]);
 
