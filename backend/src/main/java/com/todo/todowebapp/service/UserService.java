@@ -5,6 +5,7 @@ import com.todo.todowebapp.model.Task;
 import com.todo.todowebapp.repository.UserRepository;
 import com.todo.todowebapp.repository.TaskRepository;
 import com.todo.todowebapp.repository.CommentRepository;
+import com.todo.todowebapp.repository.NotificationRepository;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,6 +32,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Autowired
     @Lazy
@@ -202,6 +206,11 @@ public class UserService implements UserDetailsService {
 
         taskRepository.deleteAll(tasksToDelete);
         taskRepository.flush(); // Force database to delete tasks first
+
+        // Delete notifications associated with this user
+        notificationRepository.deleteByRecipient(user);
+        notificationRepository.deleteBySender(user);
+        notificationRepository.flush();
 
         // 3. Delete the user
         userRepository.delete(user);

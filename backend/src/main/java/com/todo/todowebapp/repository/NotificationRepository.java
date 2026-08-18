@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findByRecipientOrderByCreatedDateDesc(User recipient);
+    void deleteByRecipient(User recipient);
+    void deleteBySender(User sender);
 }
