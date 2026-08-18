@@ -144,7 +144,7 @@ const Users = () => {
         }
         payload.password = userForm.password;
       }
-      if (userForm.role === 'ROLE_EMPLOYEE' && userForm.managerUsername) {
+      if ((userForm.role === 'ROLE_EMPLOYEE' || userForm.role === 'ROLE_INTERN') && userForm.managerUsername) {
         payload.managerUsername = userForm.managerUsername;
       }
 
