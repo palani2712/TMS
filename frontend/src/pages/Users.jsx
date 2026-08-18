@@ -78,11 +78,15 @@ const Users = () => {
   };
 
   const openCreateModal = () => {
+    let defaultRole = 'ROLE_EMPLOYEE';
+    if (user.role === 'ROLE_EMPLOYEE') {
+      defaultRole = 'ROLE_INTERN';
+    }
     setUserForm({
       id: null,
       username: '',
       password: '',
-      role: 'ROLE_EMPLOYEE',
+      role: defaultRole,
       email: '',
       managerUsername: '',
     });
