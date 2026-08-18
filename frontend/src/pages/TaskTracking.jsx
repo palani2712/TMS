@@ -93,20 +93,25 @@ const TaskTracking = () => {
     const roleOrder = {
       'ROLE_ADMIN': 1,
       'ROLE_MANAGER': 2,
-      'ROLE_EMPLOYEE': 3
+      'ROLE_EMPLOYEE': 3,
+      'ROLE_INTERN': 4
     };
 
     // 1. Filter users based on logged-in user role
-    // Admin: show Managers and Employees.
-    // Manager: show Employees only.
+    // Admin: show Managers, Employees, and Interns.
+    // Manager: show Employees and Interns in team.
+    // Employee: show Interns under them.
     const eligibleUsers = usersList.filter(u => {
       const isSelf = u.username === user.username;
       if (user.role === 'ROLE_ADMIN') {
-        // Admin sees managers and employees (and optionally self if they have tasks)
-        return u.role === 'ROLE_MANAGER' || u.role === 'ROLE_EMPLOYEE' || isSelf;
+        return u.role === 'ROLE_MANAGER' || u.role === 'ROLE_EMPLOYEE' || u.role === 'ROLE_INTERN' || isSelf;
       } else if (user.role === 'ROLE_MANAGER') {
-        // Manager sees employees assigned under them, and themselves
-        return (u.role === 'ROLE_EMPLOYEE' && u.managerUsername === user.username) || isSelf;
+        const isMyEmployee = u.role === 'ROLE_EMPLOYEE' && u.managerUsername === user.username;
+        const isMyDirectIntern = u.role === 'ROLE_INTERN' && u.managerUsername === user.username;
+        const isMyIndirectIntern = u.role === 'ROLE_INTERN' && usersList.some(emp => emp.role === 'ROLE_EMPLOYEE' && emp.managerUsername === user.username && emp.username === u.managerUsername);
+        return isSelf || isMyEmployee || isMyDirectIntern || isMyIndirectIntern;
+      } else if (user.role === 'ROLE_EMPLOYEE') {
+        return (u.role === 'ROLE_INTERN' && u.managerUsername === user.username) || isSelf;
       }
       return false;
     });
@@ -162,12 +167,14 @@ const TaskTracking = () => {
     'ROLE_ADMIN': 'General Manager',
     'ROLE_MANAGER': 'Manager',
     'ROLE_EMPLOYEE': 'Employee',
+    'ROLE_INTERN': 'Intern',
   };
 
   const roleBadgeColor = {
     'ROLE_ADMIN': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300',
     'ROLE_MANAGER': 'bg-violet-100 text-violet-800 dark:bg-violet-950/40 dark:text-violet-300',
     'ROLE_EMPLOYEE': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+    'ROLE_INTERN': 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
   };
 
   return (
@@ -212,6 +219,7 @@ const TaskTracking = () => {
             <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ROLE_ADMIN">General Manager</option>
             <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>
             <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
+            <option className="bg-[var(--color-bg-card)] text-[var(--color-text-main)] dark:bg-slate-900 dark:text-slate-200" value="ROLE_INTERN">Intern</option>
           </select>
         </div>
       </div>

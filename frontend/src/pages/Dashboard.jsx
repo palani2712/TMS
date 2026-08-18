@@ -800,7 +800,7 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Welcome Back {user?.role === 'ROLE_ADMIN' ? 'General Manager' : user?.role === 'ROLE_MANAGER' ? 'Manager' : user?.role === 'ROLE_EMPLOYEE' ? 'Employee' : ''}
+            Welcome Back {user?.role === 'ROLE_ADMIN' ? 'General Manager' : user?.role === 'ROLE_MANAGER' ? 'Manager' : user?.role === 'ROLE_EMPLOYEE' ? 'Employee' : user?.role === 'ROLE_INTERN' ? 'Intern' : ''}
           </h1>
           <p className="text-slate-500 dark:text-slate-400">Here's an overview of your tasks.</p>
         </div>
@@ -821,7 +821,7 @@ const Dashboard = () => {
           </button>
 
           {/* Assignment Filters */}
-          {user?.role === 'ROLE_EMPLOYEE' && (
+          {user?.role === 'ROLE_INTERN' && (
             <button
               onClick={() => {
                 setAssignmentFilter('ALL');
@@ -836,7 +836,7 @@ const Dashboard = () => {
               All Tasks
             </button>
           )}
-          {(user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_MANAGER') && (
+          {(user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_MANAGER' || user?.role === 'ROLE_EMPLOYEE') && (
             <>
               <button
                 onClick={() => {
@@ -1497,7 +1497,7 @@ const Dashboard = () => {
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                {user?.role === 'ROLE_EMPLOYEE' ? (
+                {user?.role === 'ROLE_INTERN' ? (
                   <>
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign To</label>
@@ -1541,9 +1541,10 @@ const Dashboard = () => {
                         }}
                         className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 text-sm font-semibold"
                       >
-                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_ADMIN">General Manager</option>
-                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>
-                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
+                        {user?.role === 'ROLE_ADMIN' && <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_ADMIN">General Manager</option>}
+                        {(user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_MANAGER') && <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>}
+                        {(user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_MANAGER' || user?.role === 'ROLE_EMPLOYEE') && <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>}
+                        <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_INTERN">Intern</option>
                       </select>
                     </div>
 
@@ -1565,7 +1566,7 @@ const Dashboard = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                {user?.role !== 'ROLE_EMPLOYEE' && (
+                {user?.role !== 'ROLE_INTERN' && (
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Priority</label>
                     <select

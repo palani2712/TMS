@@ -64,16 +64,30 @@ public class TaskController {
             // General Manager sees all tasks
             tasks = taskService.getAllTasks();
         } else if (user.getRole() == Role.ROLE_MANAGER) {
-            // Managers see tasks assigned to/by themselves, or tasks assigned to their employees
+            // Managers see tasks assigned to/by themselves, or tasks assigned to their employees and interns (direct/indirect)
             tasks = taskService.getAllTasks().stream()
                     .filter(t -> t.getAssignedTo().getId().equals(user.getId()) || 
                                  t.getAssignedBy().getId().equals(user.getId()) || 
                                  (t.getAssignedTo().getRole() == Role.ROLE_EMPLOYEE && 
                                   t.getAssignedTo().getManager() != null && 
+                                  t.getAssignedTo().getManager().getId().equals(user.getId())) ||
+                                 (t.getAssignedTo().getRole() == Role.ROLE_INTERN && 
+                                  t.getAssignedTo().getManager() != null && 
+                                  (t.getAssignedTo().getManager().getId().equals(user.getId()) ||
+                                   (t.getAssignedTo().getManager().getManager() != null &&
+                                    t.getAssignedTo().getManager().getManager().getId().equals(user.getId())))))
+                    .collect(Collectors.toList());
+        } else if (user.getRole() == Role.ROLE_EMPLOYEE) {
+            // Employees see tasks assigned to/by themselves, or tasks assigned to their interns
+            tasks = taskService.getAllTasks().stream()
+                    .filter(t -> t.getAssignedTo().getId().equals(user.getId()) || 
+                                 t.getAssignedBy().getId().equals(user.getId()) || 
+                                 (t.getAssignedTo().getRole() == Role.ROLE_INTERN && 
+                                  t.getAssignedTo().getManager() != null && 
                                   t.getAssignedTo().getManager().getId().equals(user.getId())))
                     .collect(Collectors.toList());
         } else {
-            // Employees only see their own assigned tasks
+            // Interns only see their own assigned tasks
             tasks = taskService.getTasksAssignedTo(user);
         }
 
@@ -90,17 +104,27 @@ public class TaskController {
         Task task = taskService.getTaskById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        // Enforce employee access limit
-        if (user.getRole() == Role.ROLE_EMPLOYEE && !task.getAssignedTo().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Access denied to this task.");
+        // Enforce employee and intern access limit
+        if (user.getRole() == Role.ROLE_EMPLOYEE) {
+            boolean isOwnTask = task.getAssignedTo().getId().equals(user.getId()) || task.getAssignedBy().getId().equals(user.getId());
+            boolean isInternTask = task.getAssignedTo().getRole() == Role.ROLE_INTERN &&
+                                   task.getAssignedTo().getManager() != null &&
+                                   task.getAssignedTo().getManager().getId().equals(user.getId());
+            if (!isOwnTask && !isInternTask) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Access denied to this task.");
+            }
+        } else if (user.getRole() == Role.ROLE_INTERN) {
+            if (!task.getAssignedTo().getId().equals(user.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Access denied to this task.");
+            }
         }
 
         return ResponseEntity.ok(convertToDto(task, authentication.getName()));
     }
 
-    // Create a new task (GMs, Managers, and Employees for themselves)
+    // Create a new task (GMs, Managers, Employees, and Interns)
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE', 'INTERN')")
     public ResponseEntity<?> createTask(@Valid @RequestBody TaskDto taskDto, Authentication authentication) {
         User creator = userService.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("Creator not found"));
@@ -109,24 +133,37 @@ public class TaskController {
                 .orElseThrow(() -> new IllegalArgumentException("Assignee not found"));
 
         // Creator and assignee validation based on rules:
-        // - Admin can assign task to self, manager, and employee.
-        // - Manager can assign task to self and employee.
-        // - Employee can assign task to self only.
-        if (creator.getRole() == Role.ROLE_EMPLOYEE) {
+        // - Admin can assign task to GM, manager, employee, and intern.
+        // - Manager can assign task to self, employee, and intern in team.
+        // - Employee can assign task to self and intern in team.
+        // - Intern can assign task to self only.
+        if (creator.getRole() == Role.ROLE_INTERN) {
             if (!assignee.getUsername().equals(creator.getUsername())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Employees can only assign tasks to themselves.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Interns can only assign tasks to themselves.");
+            }
+        } else if (creator.getRole() == Role.ROLE_EMPLOYEE) {
+            boolean isSelf = assignee.getUsername().equals(creator.getUsername());
+            boolean isInternInTeam = assignee.getRole() == Role.ROLE_INTERN
+                    && assignee.getManager() != null
+                    && assignee.getManager().getId().equals(creator.getId());
+            if (!isSelf && !isInternInTeam) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Employees can only assign tasks to themselves or interns in their team.");
             }
         } else if (creator.getRole() == Role.ROLE_MANAGER) {
             boolean isSelf = assignee.getId().equals(creator.getId());
             boolean isEmployeeInTeam = assignee.getRole() == Role.ROLE_EMPLOYEE 
                     && assignee.getManager() != null 
                     && assignee.getManager().getId().equals(creator.getId());
-            if (!isSelf && !isEmployeeInTeam) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers can only assign tasks to themselves or employees in their team.");
+            boolean isInternInTeam = assignee.getRole() == Role.ROLE_INTERN 
+                    && assignee.getManager() != null 
+                    && (assignee.getManager().getId().equals(creator.getId()) || 
+                        (assignee.getManager().getManager() != null && assignee.getManager().getManager().getId().equals(creator.getId())));
+            if (!isSelf && !isEmployeeInTeam && !isInternInTeam) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers can only assign tasks to themselves, employees, or interns in their team.");
             }
         } else if (creator.getRole() == Role.ROLE_ADMIN) {
-            if (assignee.getRole() != Role.ROLE_ADMIN && assignee.getRole() != Role.ROLE_MANAGER && assignee.getRole() != Role.ROLE_EMPLOYEE) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: GMs can only assign tasks to GMs, Managers, or Employees.");
+            if (assignee.getRole() != Role.ROLE_ADMIN && assignee.getRole() != Role.ROLE_MANAGER && assignee.getRole() != Role.ROLE_EMPLOYEE && assignee.getRole() != Role.ROLE_INTERN) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: GMs can only assign tasks to GMs, Managers, Employees, or Interns.");
             }
         }
 
@@ -231,21 +268,33 @@ public class TaskController {
                         .orElseThrow(() -> new IllegalArgumentException("Assignee not found"));
 
                 // Validate if the modifier (user) can assign task to assignee
-                if (user.getRole() == Role.ROLE_EMPLOYEE) {
+                if (user.getRole() == Role.ROLE_INTERN) {
                     if (!assignee.getUsername().equals(user.getUsername())) {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Employees can only assign tasks to themselves.");
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Interns can only assign tasks to themselves.");
+                    }
+                } else if (user.getRole() == Role.ROLE_EMPLOYEE) {
+                    boolean isSelf = assignee.getUsername().equals(user.getUsername());
+                    boolean isInternInTeam = assignee.getRole() == Role.ROLE_INTERN
+                            && assignee.getManager() != null
+                            && assignee.getManager().getId().equals(user.getId());
+                    if (!isSelf && !isInternInTeam) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Employees can only assign tasks to themselves or interns in their team.");
                     }
                 } else if (user.getRole() == Role.ROLE_MANAGER) {
                     boolean isSelf = assignee.getId().equals(user.getId());
                     boolean isEmployeeInTeam = assignee.getRole() == Role.ROLE_EMPLOYEE 
                             && assignee.getManager() != null 
                             && assignee.getManager().getId().equals(user.getId());
-                    if (!isSelf && !isEmployeeInTeam) {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers can only assign tasks to themselves or employees in their team.");
+                    boolean isInternInTeam = assignee.getRole() == Role.ROLE_INTERN 
+                            && assignee.getManager() != null 
+                            && (assignee.getManager().getId().equals(user.getId()) || 
+                                (assignee.getManager().getManager() != null && assignee.getManager().getManager().getId().equals(user.getId())));
+                    if (!isSelf && !isEmployeeInTeam && !isInternInTeam) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers can only assign tasks to themselves, employees, or interns in their team.");
                     }
                 } else if (user.getRole() == Role.ROLE_ADMIN) {
-                    if (assignee.getRole() != Role.ROLE_ADMIN && assignee.getRole() != Role.ROLE_MANAGER && assignee.getRole() != Role.ROLE_EMPLOYEE) {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: GMs can only assign tasks to GMs, Managers, or Employees.");
+                    if (assignee.getRole() != Role.ROLE_ADMIN && assignee.getRole() != Role.ROLE_MANAGER && assignee.getRole() != Role.ROLE_EMPLOYEE && assignee.getRole() != Role.ROLE_INTERN) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: GMs can only assign tasks to GMs, Managers, Employees, or Interns.");
                     }
                 }
                 updatedData.setAssignedTo(assignee);
@@ -352,7 +401,15 @@ public class TaskController {
         Task task = taskService.getTaskById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        if (user.getRole() == Role.ROLE_EMPLOYEE && !task.getAssignedTo().getId().equals(user.getId())) {
+        if (user.getRole() == Role.ROLE_EMPLOYEE) {
+            boolean isOwnTask = task.getAssignedTo().getId().equals(user.getId()) || task.getAssignedBy().getId().equals(user.getId());
+            boolean isInternTask = task.getAssignedTo().getRole() == Role.ROLE_INTERN &&
+                                   task.getAssignedTo().getManager() != null &&
+                                   task.getAssignedTo().getManager().getId().equals(user.getId());
+            if (!isOwnTask && !isInternTask) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only comment on tasks assigned to you or your interns.");
+            }
+        } else if (user.getRole() == Role.ROLE_INTERN && !task.getAssignedTo().getId().equals(user.getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only comment on tasks assigned to you.");
         }
 
@@ -364,9 +421,9 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommentDto(comment.getId(), comment.getContent(), comment.getAuthor(), comment.getCreatedDate()));
     }
 
-    // Delete task (GMs and Managers, or the creator of the task)
+    // Delete task (GMs, Managers, Employees, or Interns who created/assigned it)
     @DeleteMapping("/{taskId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE', 'INTERN')")
     public ResponseEntity<?> deleteTask(@PathVariable Long taskId, Authentication authentication) {
         try {
             User user = userService.findByUsername(authentication.getName())
@@ -397,7 +454,8 @@ public class TaskController {
 
         boolean isAssignee = task.getAssignedTo().getId().equals(user.getId());
         boolean isManagerOfAssignee = task.getAssignedTo().getManager() != null 
-                && task.getAssignedTo().getManager().getId().equals(user.getId());
+                && (task.getAssignedTo().getManager().getId().equals(user.getId()) ||
+                    (task.getAssignedTo().getManager().getManager() != null && task.getAssignedTo().getManager().getManager().getId().equals(user.getId())));
         boolean isAssigneeManager = task.getAssignedTo().getRole() == Role.ROLE_MANAGER;
 
         boolean allowed = isAssignee || (isManagerOfAssignee && !isAssigneeManager);

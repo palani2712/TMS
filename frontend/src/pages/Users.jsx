@@ -241,19 +241,33 @@ const Users = () => {
     const roleOrder = {
       'ROLE_ADMIN': 1,
       'ROLE_MANAGER': 2,
-      'ROLE_EMPLOYEE': 3
+      'ROLE_EMPLOYEE': 3,
+      'ROLE_INTERN': 4
     };
 
     return users
       .filter(u => {
-        // Rule: Managers can only view Employees assigned under them. Admin (GM) can view everyone.
+        // Rule: Managers can view self, direct employees, direct interns, and their manager (GM).
+        // Employees can view self, their manager, and direct interns under them.
+        // Interns can view only self.
         if (user.role === 'ROLE_MANAGER') {
           const isSelf = u.username === user.username;
           const isManagerGM = u.role === 'ROLE_ADMIN';
           const isMyEmployee = u.role === 'ROLE_EMPLOYEE' && u.managerUsername === user.username;
-          if (!isSelf && !isManagerGM && !isMyEmployee) {
+          const isMyDirectIntern = u.role === 'ROLE_INTERN' && u.managerUsername === user.username;
+          const isMyIndirectIntern = u.role === 'ROLE_INTERN' && users.some(emp => emp.role === 'ROLE_EMPLOYEE' && emp.managerUsername === user.username && emp.username === u.managerUsername);
+          if (!isSelf && !isManagerGM && !isMyEmployee && !isMyDirectIntern && !isMyIndirectIntern) {
             return false;
           }
+        } else if (user.role === 'ROLE_EMPLOYEE') {
+          const isSelf = u.username === user.username;
+          const isMyIntern = u.role === 'ROLE_INTERN' && u.managerUsername === user.username;
+          const isMyManager = u.username === user.managerUsername;
+          if (!isSelf && !isMyIntern && !isMyManager) {
+            return false;
+          }
+        } else if (user.role === 'ROLE_INTERN') {
+          return u.username === user.username;
         }
 
         const matchesSearch = u.username.toLowerCase().includes(searchQuery.toLowerCase());
@@ -275,12 +289,56 @@ const Users = () => {
     'ROLE_ADMIN': 'General Manager',
     'ROLE_MANAGER': 'Manager',
     'ROLE_EMPLOYEE': 'Employee',
+    'ROLE_INTERN': 'Intern',
   };
 
   const roleBadgeColor = {
     'ROLE_ADMIN': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300',
     'ROLE_MANAGER': 'bg-violet-100 text-violet-800 dark:bg-violet-950/40 dark:text-violet-300',
     'ROLE_EMPLOYEE': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+    'ROLE_INTERN': 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
+  };
+
+  const getPotentialManagers = () => {
+    if (userForm.role === 'ROLE_EMPLOYEE') {
+      return users.filter(u => u.role === 'ROLE_MANAGER');
+    } else if (userForm.role === 'ROLE_INTERN') {
+      if (user.role === 'ROLE_ADMIN') {
+        return users.filter(u => u.role === 'ROLE_MANAGER' || u.role === 'ROLE_EMPLOYEE');
+      } else if (user.role === 'ROLE_MANAGER') {
+        return users.filter(u => u.username === user.username || (u.role === 'ROLE_EMPLOYEE' && u.managerUsername === user.username));
+      }
+    }
+    return [];
+  };
+
+  const getSelectableRoles = () => {
+    if (user.role === 'ROLE_ADMIN') {
+      return (
+        <>
+          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
+          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>
+          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_ADMIN">General Manager</option>
+          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_INTERN">Intern</option>
+        </>
+      );
+    } else if (user.role === 'ROLE_MANAGER') {
+      return (
+        <>
+          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
+          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_INTERN">Intern</option>
+        </>
+      );
+    }
+    return null;
+  };
+
+  const displayRoleName = (roleVal) => {
+    if (roleVal === 'ROLE_ADMIN') return 'General Manager';
+    if (roleVal === 'ROLE_MANAGER') return 'Manager';
+    if (roleVal === 'ROLE_EMPLOYEE') return 'Employee';
+    if (roleVal === 'ROLE_INTERN') return 'Intern';
+    return roleVal;
   };
 
   return (
@@ -304,7 +362,7 @@ const Users = () => {
           className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-button-secondary-bg)] hover:opacity-90 text-[var(--color-button-secondary-text)] border border-[var(--color-button-secondary-border)] dark:bg-primary-600 dark:hover:bg-primary-700 dark:text-white dark:border-transparent dark:hover:opacity-100 rounded-xl font-medium text-sm shadow-md transition-all self-start md:self-auto"
         >
           <UserPlus className="w-4 h-4" />
-          <span>{user.role === 'ROLE_ADMIN' ? 'Create User' : 'Add Employee'}</span>
+          <span>{user.role === 'ROLE_ADMIN' ? 'Create User' : (user.role === 'ROLE_MANAGER' ? 'Add Employee/Intern' : 'Add Intern')}</span>
         </button>
       </div>
 
@@ -337,6 +395,7 @@ const Users = () => {
               <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_ADMIN">General Managers</option>
               <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_MANAGER">Managers</option>
               <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employees</option>
+              <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_INTERN">Interns</option>
             </select>
           </div>
         )}
@@ -540,8 +599,8 @@ const Users = () => {
                 </div>
               )}
 
-              {/* Role select (Only Admin can create Managers or Admins. Managers can only create Employees, so it is fixed) */}
-              {user.role === 'ROLE_ADMIN' ? (
+              {/* Role select */}
+              {user.role === 'ROLE_ADMIN' || user.role === 'ROLE_MANAGER' ? (
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">User Role</label>
                   <select
@@ -551,9 +610,7 @@ const Users = () => {
                     disabled={userForm.id !== null}
                     className={`w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50 ${userForm.id !== null ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed font-semibold text-sm' : 'bg-white dark:bg-slate-900'}`}
                   >
-                    <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
-                    <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>
-                    <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_ADMIN">General Manager</option>
+                    {getSelectableRoles()}
                   </select>
                 </div>
               ) : (
@@ -561,22 +618,19 @@ const Users = () => {
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">User Role</label>
                   <input
                     type="text"
-                    value={
-                      userForm.role === 'ROLE_ADMIN'
-                        ? 'General Manager'
-                        : userForm.role === 'ROLE_MANAGER'
-                          ? 'Manager'
-                          : 'Employee'
-                    }
+                    value={displayRoleName(userForm.role)}
                     className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-semibold cursor-not-allowed text-sm"
                     disabled
                   />
                 </div>
               )}
 
-              {user.role === 'ROLE_ADMIN' && userForm.role === 'ROLE_EMPLOYEE' && (
+              {((user.role === 'ROLE_ADMIN' && (userForm.role === 'ROLE_EMPLOYEE' || userForm.role === 'ROLE_INTERN')) ||
+                (user.role === 'ROLE_MANAGER' && userForm.role === 'ROLE_INTERN')) && (
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Assign under Manager</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    {userForm.role === 'ROLE_EMPLOYEE' ? 'Assign under Manager' : 'Assign under Manager/Employee'}
+                  </label>
                   <select
                     name="managerUsername"
                     value={userForm.managerUsername}
@@ -584,9 +638,11 @@ const Users = () => {
                     className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
                     required
                   >
-                    <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="">Select a Manager</option>
-                    {users.filter(u => u.role === 'ROLE_MANAGER').map(m => (
-                      <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" key={m.id} value={m.username}>{m.username}</option>
+                    <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="">Select an Assigner</option>
+                    {getPotentialManagers().map(m => (
+                      <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" key={m.id} value={m.username}>
+                        {m.username} ({displayRoleName(m.role)})
+                      </option>
                     ))}
                   </select>
                 </div>

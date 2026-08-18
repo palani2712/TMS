@@ -169,6 +169,16 @@ public class UserService implements UserDetailsService {
             }
         }
 
+        // Block deletion of employee if they have interns assigned under them
+        if (user.getRole() == com.todo.todowebapp.model.Role.ROLE_EMPLOYEE) {
+            long internCount = userRepository.findAll().stream()
+                    .filter(u -> u.getManager() != null && u.getManager().getId().equals(id))
+                    .count();
+            if (internCount > 0) {
+                throw new IllegalArgumentException("Cannot delete employee. There are interns assigned to this employee. Please reassign them to another employee or manager first.");
+            }
+        }
+
         // Set manager to null for any users managed by this user (fallback/general safety)
         List<User> managedUsers = userRepository.findAll().stream()
                 .filter(u -> u.getManager() != null && u.getManager().getId().equals(id))

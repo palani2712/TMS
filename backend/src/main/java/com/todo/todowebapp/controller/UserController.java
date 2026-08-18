@@ -82,24 +82,34 @@ public class UserController {
 
     // List all assignable users depending on role
     @GetMapping("/employees")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE', 'INTERN')")
     public ResponseEntity<?> getAllEmployees(Authentication authentication) {
         User user = userService.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<User> list;
         if (user.getRole() == Role.ROLE_ADMIN) {
-            // Admin can assign to self, manager, and employee
+            // GM can assign to anyone
             list = userService.getAllUsers().stream()
-                    .filter(u -> u.getRole() == Role.ROLE_ADMIN || u.getRole() == Role.ROLE_MANAGER || u.getRole() == Role.ROLE_EMPLOYEE)
+                    .filter(u -> u.getRole() == Role.ROLE_ADMIN || u.getRole() == Role.ROLE_MANAGER || u.getRole() == Role.ROLE_EMPLOYEE || u.getRole() == Role.ROLE_INTERN)
                     .collect(Collectors.toList());
         } else if (user.getRole() == Role.ROLE_MANAGER) {
-            // Manager can assign to self and their own employees
+            // Manager can assign to self, their employees, and interns in their team (direct or indirect)
             list = userService.getAllUsers().stream()
-                    .filter(u -> u.getId().equals(user.getId()) || (u.getRole() == Role.ROLE_EMPLOYEE && u.getManager() != null && u.getManager().getId().equals(user.getId())))
+                    .filter(u -> u.getId().equals(user.getId()) || 
+                                 (u.getRole() == Role.ROLE_EMPLOYEE && u.getManager() != null && u.getManager().getId().equals(user.getId())) ||
+                                 (u.getRole() == Role.ROLE_INTERN && u.getManager() != null && 
+                                  (u.getManager().getId().equals(user.getId()) || 
+                                   (u.getManager().getManager() != null && u.getManager().getManager().getId().equals(user.getId())))))
+                    .collect(Collectors.toList());
+        } else if (user.getRole() == Role.ROLE_EMPLOYEE) {
+            // Employee can assign to self and their interns
+            list = userService.getAllUsers().stream()
+                    .filter(u -> u.getId().equals(user.getId()) || 
+                                 (u.getRole() == Role.ROLE_INTERN && u.getManager() != null && u.getManager().getId().equals(user.getId())))
                     .collect(Collectors.toList());
         } else {
-            // Employee can assign to self only
+            // Intern can assign to self only
             list = List.of(user);
         }
 
@@ -122,9 +132,9 @@ public class UserController {
         return ResponseEntity.ok(dtos);
     }
 
-    // List all users (for GM/Manager view)
+    // List all users (for GM/Manager/Employee view)
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
     public ResponseEntity<?> getAllUsers(Authentication authentication) {
         User user = userService.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -133,9 +143,20 @@ public class UserController {
         if (user.getRole() == Role.ROLE_ADMIN) {
             list = userService.getAllUsers();
         } else if (user.getRole() == Role.ROLE_MANAGER) {
+            // Manager sees self, their employees, interns in team, and their GM
             list = userService.getAllUsers().stream()
                     .filter(u -> u.getId().equals(user.getId()) 
                             || (u.getRole() == Role.ROLE_EMPLOYEE && u.getManager() != null && u.getManager().getId().equals(user.getId()))
+                            || (u.getRole() == Role.ROLE_INTERN && u.getManager() != null && 
+                                (u.getManager().getId().equals(user.getId()) || 
+                                 (u.getManager().getManager() != null && u.getManager().getManager().getId().equals(user.getId()))))
+                            || (user.getManager() != null && u.getId().equals(user.getManager().getId())))
+                    .collect(Collectors.toList());
+        } else if (user.getRole() == Role.ROLE_EMPLOYEE) {
+            // Employee sees self, their interns, and their manager
+            list = userService.getAllUsers().stream()
+                    .filter(u -> u.getId().equals(user.getId())
+                            || (u.getRole() == Role.ROLE_INTERN && u.getManager() != null && u.getManager().getId().equals(user.getId()))
                             || (user.getManager() != null && u.getId().equals(user.getManager().getId())))
                     .collect(Collectors.toList());
         } else {
@@ -184,6 +205,16 @@ public class UserController {
                     return ResponseEntity.badRequest().body("Error: Assigned user must be a Manager.");
                 }
                 newUser.setManager(manager);
+            } else if (userDto.getRole() == Role.ROLE_INTERN) {
+                if (userDto.getManagerUsername() == null || userDto.getManagerUsername().trim().isEmpty()) {
+                    return ResponseEntity.badRequest().body("Error: Intern must be assigned under an employee or manager.");
+                }
+                User manager = userService.findByUsername(userDto.getManagerUsername())
+                        .orElseThrow(() -> new IllegalArgumentException("Manager/Employee not found"));
+                if (manager.getRole() != Role.ROLE_EMPLOYEE && manager.getRole() != Role.ROLE_MANAGER) {
+                    return ResponseEntity.badRequest().body("Error: Assigned manager must be an Employee or a Manager.");
+                }
+                newUser.setManager(manager);
             }
             User saved = userService.createUser(newUser, authentication.getName());
             UserDto responseDto = new UserDto(saved.getId(), saved.getUsername(), saved.getRole(), saved.isPasswordResetAllowed());
@@ -207,13 +238,22 @@ public class UserController {
                 return ResponseEntity.badRequest().body("Error: Changing user role is not allowed once assigned.");
             }
 
-            // Allow manager update only for employees
+            // Allow manager update for employees and interns
             if (existing.getRole() == Role.ROLE_EMPLOYEE) {
                 if (userDto.getManagerUsername() != null && !userDto.getManagerUsername().trim().isEmpty()) {
                     User manager = userService.findByUsername(userDto.getManagerUsername())
                             .orElseThrow(() -> new IllegalArgumentException("Manager not found"));
                      if (manager.getRole() != Role.ROLE_MANAGER) {
-                         return ResponseEntity.badRequest().body("Error: Assigned user must be a Manager.");
+                          return ResponseEntity.badRequest().body("Error: Assigned user must be a Manager.");
+                     }
+                    existing.setManager(manager);
+                }
+            } else if (existing.getRole() == Role.ROLE_INTERN) {
+                if (userDto.getManagerUsername() != null && !userDto.getManagerUsername().trim().isEmpty()) {
+                    User manager = userService.findByUsername(userDto.getManagerUsername())
+                            .orElseThrow(() -> new IllegalArgumentException("Assigned user not found"));
+                     if (manager.getRole() != Role.ROLE_EMPLOYEE && manager.getRole() != Role.ROLE_MANAGER) {
+                          return ResponseEntity.badRequest().body("Error: Assigned user must be an Employee or a Manager.");
                      }
                     existing.setManager(manager);
                 }
@@ -256,7 +296,7 @@ public class UserController {
     // ==========================================
 
     @PostMapping("/manager/create-employee")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
     public ResponseEntity<?> managerCreateEmployee(@RequestBody UserDto userDto, Authentication authentication) {
         try {
             if (userDto.getEmail() == null || userDto.getEmail().trim().isEmpty()) {
@@ -264,18 +304,45 @@ public class UserController {
             }
             User creator = userService.findByUsername(authentication.getName())
                     .orElseThrow(() -> new IllegalArgumentException("Creator not found"));
-            User newUser = new User(userDto.getUsername(), userDto.getPassword(), Role.ROLE_EMPLOYEE);
+            
+            Role targetRole = userDto.getRole() != null ? userDto.getRole() : Role.ROLE_EMPLOYEE;
+            
+            if (creator.getRole() == Role.ROLE_EMPLOYEE) {
+                targetRole = Role.ROLE_INTERN;
+            } else if (creator.getRole() == Role.ROLE_MANAGER) {
+                if (targetRole != Role.ROLE_EMPLOYEE && targetRole != Role.ROLE_INTERN) {
+                    return ResponseEntity.badRequest().body("Error: Managers can only create Employees or Interns.");
+                }
+            }
+
+            User newUser = new User(userDto.getUsername(), userDto.getPassword(), targetRole);
             newUser.setEmail(userDto.getEmail().trim());
             
-            if (creator.getRole() == Role.ROLE_MANAGER) {
+            if (creator.getRole() == Role.ROLE_EMPLOYEE) {
                 newUser.setManager(creator);
-            } else if (creator.getRole() == Role.ROLE_ADMIN) {
-                if (userDto.getManagerUsername() == null || userDto.getManagerUsername().trim().isEmpty()) {
-                    return ResponseEntity.badRequest().body("Error: Employee must be assigned under a manager.");
+            } else if (creator.getRole() == Role.ROLE_MANAGER) {
+                if (targetRole == Role.ROLE_EMPLOYEE) {
+                    newUser.setManager(creator);
+                } else {
+                    if (userDto.getManagerUsername() != null && !userDto.getManagerUsername().trim().isEmpty()) {
+                        User assignedManager = userService.findByUsername(userDto.getManagerUsername())
+                                .orElseThrow(() -> new IllegalArgumentException("Assigned manager not found"));
+                        if (assignedManager.getRole() != Role.ROLE_EMPLOYEE || assignedManager.getManager() == null || !assignedManager.getManager().getId().equals(creator.getId())) {
+                            if (!assignedManager.getId().equals(creator.getId())) {
+                                return ResponseEntity.badRequest().body("Error: Assigned manager must be you or one of your employees.");
+                            }
+                        }
+                        newUser.setManager(assignedManager);
+                    } else {
+                        newUser.setManager(creator);
+                    }
                 }
-                User manager = userService.findByUsername(userDto.getManagerUsername())
-                        .orElseThrow(() -> new IllegalArgumentException("Manager not found"));
-                newUser.setManager(manager);
+            } else if (creator.getRole() == Role.ROLE_ADMIN) {
+                if (userDto.getManagerUsername() != null && !userDto.getManagerUsername().trim().isEmpty()) {
+                    User assignedManager = userService.findByUsername(userDto.getManagerUsername())
+                            .orElseThrow(() -> new IllegalArgumentException("Assigned manager not found"));
+                    newUser.setManager(assignedManager);
+                }
             }
             
             User saved = userService.createUser(newUser, authentication.getName());
@@ -290,28 +357,38 @@ public class UserController {
     }
 
     @PutMapping("/manager/update-employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
     public ResponseEntity<?> managerUpdateEmployee(@PathVariable Long employeeId, @RequestBody UserDto userDto, Authentication authentication) {
         try {
             User user = userService.findByUsername(authentication.getName())
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             User existing = userService.findById(employeeId)
-                    .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("Employee/Intern not found"));
 
-            if (existing.getRole() != Role.ROLE_EMPLOYEE) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers can only edit Employee accounts.");
-            }
-
-            if (user.getRole() == Role.ROLE_MANAGER) {
+            if (user.getRole() == Role.ROLE_EMPLOYEE) {
+                if (existing.getRole() != Role.ROLE_INTERN) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Employees can only edit Intern accounts.");
+                }
                 if (existing.getManager() == null || !existing.getManager().getId().equals(user.getId())) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only edit employees assigned under you.");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only edit Interns assigned under you.");
                 }
                 if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers are not allowed to change employee passwords.");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Employees are not allowed to change intern passwords.");
+                }
+            } else if (user.getRole() == Role.ROLE_MANAGER) {
+                if (existing.getRole() != Role.ROLE_EMPLOYEE && existing.getRole() != Role.ROLE_INTERN) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers can only edit Employee or Intern accounts.");
+                }
+                boolean isDirectReport = existing.getManager() != null && existing.getManager().getId().equals(user.getId());
+                boolean isIndirectReport = existing.getManager() != null && existing.getManager().getManager() != null && existing.getManager().getManager().getId().equals(user.getId());
+                if (!isDirectReport && !isIndirectReport) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only edit employees or interns in your team.");
+                }
+                if (userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers are not allowed to change employee/intern passwords.");
                 }
             }
 
-            // Update employee credentials (only General Manager can set new password here)
             User updated = userService.updateUser(existing, userDto.getUsername(), user.getRole() == Role.ROLE_ADMIN ? userDto.getPassword() : null, authentication.getName());
             return ResponseEntity.ok(new UserDto(updated.getId(), updated.getUsername(), updated.getRole(), updated.isPasswordResetAllowed()));
         } catch (IllegalArgumentException e) {
@@ -320,21 +397,29 @@ public class UserController {
     }
 
     @PutMapping("/manager/toggle-reset-permission/{employeeId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
     public ResponseEntity<?> managerTogglePermission(@PathVariable Long employeeId, @RequestParam boolean allowed, Authentication authentication) {
         try {
             User user = userService.findByUsername(authentication.getName())
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             User existing = userService.findById(employeeId)
-                    .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("Employee/Intern not found"));
 
-            if (existing.getRole() != Role.ROLE_EMPLOYEE) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers can only grant permissions to Employees.");
-            }
-
-            if (user.getRole() == Role.ROLE_MANAGER) {
+            if (user.getRole() == Role.ROLE_EMPLOYEE) {
+                if (existing.getRole() != Role.ROLE_INTERN) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Employees can only manage Intern permissions.");
+                }
                 if (existing.getManager() == null || !existing.getManager().getId().equals(user.getId())) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only manage employees assigned under you.");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only manage Interns assigned under you.");
+                }
+            } else if (user.getRole() == Role.ROLE_MANAGER) {
+                if (existing.getRole() != Role.ROLE_EMPLOYEE && existing.getRole() != Role.ROLE_INTERN) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: Managers can only manage Employees or Interns.");
+                }
+                boolean isDirectReport = existing.getManager() != null && existing.getManager().getId().equals(user.getId());
+                boolean isIndirectReport = existing.getManager() != null && existing.getManager().getManager() != null && existing.getManager().getManager().getId().equals(user.getId());
+                if (!isDirectReport && !isIndirectReport) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: You can only manage employees or interns in your team.");
                 }
             }
 

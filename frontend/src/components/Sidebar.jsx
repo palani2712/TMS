@@ -162,17 +162,19 @@ const Sidebar = () => {
     'ROLE_ADMIN': 'General Manager',
     'ROLE_MANAGER': 'Manager',
     'ROLE_EMPLOYEE': 'Employee',
+    'ROLE_INTERN': 'Intern',
   };
 
   const roleBadgeColor = {
     'ROLE_ADMIN': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900/40',
     'ROLE_MANAGER': 'bg-violet-100 text-violet-800 dark:bg-violet-950/60 dark:text-violet-300 border-violet-200 dark:border-violet-900/40',
     'ROLE_EMPLOYEE': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/40',
+    'ROLE_INTERN': 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900/40',
   };
 
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: CheckSquare },
-    ...(user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_MANAGER' ? [
+    ...(user?.role === 'ROLE_ADMIN' || user?.role === 'ROLE_MANAGER' || user?.role === 'ROLE_EMPLOYEE' ? [
       { name: 'Users Directory', path: '/users', icon: Users },
       { name: 'Task Tracking', path: '/task-tracking', icon: ClipboardList }
     ] : []),
