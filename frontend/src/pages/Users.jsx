@@ -187,7 +187,17 @@ const Users = () => {
     setIsDeleteModalOpen(false);
     if (!deleteTargetId) return;
     try {
+      const targetUser = users.find(u => u.id === deleteTargetId);
       await API.delete(`/users/admin/delete/${deleteTargetId}`);
+      if (targetUser) {
+        const uname = targetUser.username;
+        localStorage.removeItem(`user-notes-tabs-${uname}`);
+        localStorage.removeItem(`theme-choice-${uname}`);
+        localStorage.removeItem(`theme-${uname}`);
+        localStorage.removeItem(`custom-colors-${uname}`);
+        localStorage.removeItem(`custom-vars-${uname}`);
+        localStorage.removeItem(`custom-bg-image-${uname}`);
+      }
       showToast('User account deleted.', 'success');
       fetchUsers();
     } catch (err) {
