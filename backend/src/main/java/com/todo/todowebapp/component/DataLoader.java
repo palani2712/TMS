@@ -36,5 +36,8 @@ public class DataLoader implements CommandLineRunner {
                 "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, " +
                 "FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE" +
                 ")");
+
+        // Drop outdated check constraint to allow ROLE_INTERN insertion
+        jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
     }
 }
