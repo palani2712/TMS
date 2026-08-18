@@ -316,9 +316,9 @@ const Users = () => {
     if (user.role === 'ROLE_ADMIN') {
       return (
         <>
-          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
-          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>
           <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_ADMIN">General Manager</option>
+          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_MANAGER">Manager</option>
+          <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_EMPLOYEE">Employee</option>
           <option className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200" value="ROLE_INTERN">Intern</option>
         </>
       );
