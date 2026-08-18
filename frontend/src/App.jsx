@@ -56,7 +56,7 @@ const ManagementRoute = ({ children }) => {
 
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role !== 'ROLE_ADMIN' && user.role !== 'ROLE_MANAGER') {
+  if (user.role !== 'ROLE_ADMIN' && user.role !== 'ROLE_MANAGER' && user.role !== 'ROLE_EMPLOYEE') {
     return <Navigate to="/" replace />;
   }
   return children;

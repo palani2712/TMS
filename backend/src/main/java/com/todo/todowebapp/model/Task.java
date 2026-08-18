@@ -41,6 +41,9 @@ public class Task {
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
+    @Column(name = "original_due_date")
+    private LocalDateTime originalDueDate;
+
     @Column(name = "on_hold_requested", nullable = false)
     private boolean onHoldRequested = false;
 
@@ -164,6 +167,14 @@ public class Task {
     public void removeComment(Comment comment) {
         comments.remove(comment);
         comment.setTask(null);
+    }
+
+    public LocalDateTime getOriginalDueDate() {
+        return originalDueDate;
+    }
+
+    public void setOriginalDueDate(LocalDateTime originalDueDate) {
+        this.originalDueDate = originalDueDate;
     }
 
     public boolean isOnHoldRequested() {

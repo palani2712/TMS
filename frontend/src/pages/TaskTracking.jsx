@@ -499,7 +499,18 @@ const TaskTracking = () => {
                                     {task.createdDate ? formatDate(task.createdDate) : 'N/A'}
                                   </td>
                                   <td className="py-3 text-center text-slate-500 dark:text-slate-400">
-                                    {task.dueDate ? formatDate(task.dueDate) : 'No deadline'}
+                                    {task.dueDate ? (
+                                      task.originalDueDate && formatDate(task.originalDueDate) !== formatDate(task.dueDate) ? (
+                                        <div className="flex flex-col text-[10px] leading-tight items-center">
+                                          <span className="text-slate-400">Actual: {formatDate(task.originalDueDate)}</span>
+                                          <span className="text-amber-600 dark:text-amber-400 font-semibold">Extended: {formatDate(task.dueDate)}</span>
+                                        </div>
+                                      ) : (
+                                        formatDate(task.dueDate)
+                                      )
+                                    ) : (
+                                      'No deadline'
+                                    )}
                                   </td>
                                   <td className="py-3 text-center text-slate-500 dark:text-slate-400">
                                     {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No deadline'}

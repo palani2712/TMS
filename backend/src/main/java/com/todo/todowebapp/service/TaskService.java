@@ -101,6 +101,9 @@ public class TaskService {
             changed = true;
         }
         if (updatedData.getDueDate() != null && !updatedData.getDueDate().equals(task.getDueDate())) {
+            if (task.getOriginalDueDate() == null) {
+                task.setOriginalDueDate(task.getDueDate());
+            }
             details.append("Due Date (").append(task.getDueDate()).append(" -> ").append(updatedData.getDueDate()).append(") ");
             task.setDueDate(updatedData.getDueDate());
             changed = true;

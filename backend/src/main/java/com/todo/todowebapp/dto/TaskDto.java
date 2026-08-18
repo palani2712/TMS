@@ -14,6 +14,7 @@ public class TaskDto {
     private Priority priority;
     private Status status;
     private LocalDateTime dueDate;
+    private LocalDateTime originalDueDate;
     private LocalDateTime createdDate;
     private LocalDateTime lastUpdatedDate;
     private List<CommentDto> comments;
@@ -85,6 +86,14 @@ public class TaskDto {
 
     public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public LocalDateTime getOriginalDueDate() {
+        return originalDueDate;
+    }
+
+    public void setOriginalDueDate(LocalDateTime originalDueDate) {
+        this.originalDueDate = originalDueDate;
     }
 
     public LocalDateTime getCreatedDate() {

@@ -41,6 +41,7 @@ public class TaskController {
         dto.setPriority(task.getPriority());
         dto.setStatus(task.getStatus());
         dto.setDueDate(task.getDueDate());
+        dto.setOriginalDueDate(task.getOriginalDueDate());
         dto.setCreatedDate(task.getCreatedDate());
         dto.setLastUpdatedDate(task.getLastUpdatedDate());
         dto.setPinned(taskService.isTaskPinnedByUser(task.getId(), username));
@@ -175,6 +176,7 @@ public class TaskController {
         task.setPriority(taskDto.getPriority() != null ? taskDto.getPriority() : Priority.MEDIUM);
         task.setStatus(Status.PENDING);
         task.setDueDate(taskDto.getDueDate());
+        task.setOriginalDueDate(taskDto.getDueDate());
 
         Task saved = taskService.createTask(task, authentication.getName());
 
