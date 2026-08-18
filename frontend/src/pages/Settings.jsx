@@ -418,8 +418,11 @@ const Settings = () => {
     reader.readAsDataURL(file);
   };
 
+  const isLightTheme = selectedTheme === 'light';
+
   return (
-    <div className="p-6 space-y-8 max-w-4xl mx-auto w-full">
+    <div className={isLightTheme ? "min-h-full w-full bg-[var(--color-bg-card)] transition-colors duration-300" : "min-h-full w-full"}>
+      <div className="p-6 space-y-8 max-w-4xl mx-auto w-full">
       {/* Header */}
       <div className="flex gap-3 items-start">
         <SettingsIcon className="w-8 h-8 text-primary-500 animate-spin-slow mt-1 shrink-0" />
@@ -436,7 +439,7 @@ const Settings = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Column (Profile & Password Change) */}
         <div className="md:col-span-2 space-y-6">
-          <div className="glass p-6 rounded-3xl space-y-6 shadow-sm">
+          <div className={`${isLightTheme ? 'bg-[var(--color-bg-app)] border border-[var(--color-border-main)]' : 'glass'} p-6 rounded-3xl space-y-6 shadow-sm`}>
             <h3 className="text-lg font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
               <User className="w-5 h-5 text-primary-500" />
               <span>Profile Details</span>
@@ -516,7 +519,7 @@ const Settings = () => {
           </div>
 
           {user && (
-            <div className="glass p-6 rounded-3xl space-y-6 shadow-sm">
+            <div className={`${isLightTheme ? 'bg-[var(--color-bg-app)] border border-[var(--color-border-main)]' : 'glass'} p-6 rounded-3xl space-y-6 shadow-sm`}>
               <h3 className="text-lg font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <KeyRound className="w-5 h-5 text-primary-500" />
                 <span>Change Password</span>
@@ -580,7 +583,7 @@ const Settings = () => {
         </div>
 
         {/* Theme Settings Column */}
-        <div className="glass p-6 rounded-3xl space-y-6 shadow-sm">
+        <div className={`${isLightTheme ? 'bg-[var(--color-bg-app)] border border-[var(--color-border-main)]' : 'glass'} p-6 rounded-3xl space-y-6 shadow-sm`}>
           <h3 className="text-lg font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
             <Palette className="w-5 h-5 text-primary-500" />
             <span>Theme settings</span>
@@ -614,6 +617,7 @@ const Settings = () => {
 
         </div>
       </div>
+    </div>
     </div>
   );
 };
