@@ -39,13 +39,16 @@ const Users = () => {
     managerUsername: '',
   });
 
-  // Change Password Modal State
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     userId: null,
     username: '',
     newPassword: '',
   });
+
+  // Delete User Confirmation Modal State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -175,14 +178,22 @@ const Users = () => {
     }
   };
 
-  const handleDeleteUser = async (targetUserId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+  const confirmDeleteUser = (targetUserId) => {
+    setDeleteTargetId(targetUserId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const executeDeleteUser = async () => {
+    setIsDeleteModalOpen(false);
+    if (!deleteTargetId) return;
     try {
-      await API.delete(`/users/admin/delete/${targetUserId}`);
+      await API.delete(`/users/admin/delete/${deleteTargetId}`);
       showToast('User account deleted.', 'success');
       fetchUsers();
     } catch (err) {
       showToast(getErrorMessage(err, 'Failed to delete user.'), 'error');
+    } finally {
+      setDeleteTargetId(null);
     }
   };
 
@@ -489,7 +500,7 @@ const Users = () => {
                           {/* Only Admins can delete users, and cannot delete themselves */}
                           {user.role === 'ROLE_ADMIN' && user.id !== item.id && (
                             <button
-                              onClick={() => handleDeleteUser(item.id)}
+                              onClick={() => confirmDeleteUser(item.id)}
                               className="p-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 transition-colors"
                               title="Delete User"
                             >
@@ -711,6 +722,33 @@ const Users = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      {/* DELETE CONFIRMATION MODAL */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={() => setIsDeleteModalOpen(false)} />
+          <div className="glass rounded-3xl w-full max-w-sm shadow-2xl relative border border-slate-200 dark:border-slate-800 overflow-hidden text-slate-800 dark:text-slate-100 flex flex-col p-6 space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-bold">Delete Account</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Are you sure you want to delete this user account?</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold text-xs transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeDeleteUser}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-sm"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
